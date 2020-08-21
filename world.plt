@@ -138,6 +138,8 @@ Eisenlohr(C)=(lam=real(C),phi=imag(C),C1=cos(lam/2),T=sin(phi/2)/(cos(phi/2)+(2*
 #
 Littrow(C)=(lam=real(C),phi=imag(C),cos(phi)*cos(lam)<=0?NaN:sin(lam)/cos(phi)+I*(tan(phi)*cos(lam)))
 #Littrow(C)=(z=EStereo(C)/2,abs(z)>=1?NaN:z/(1+z**2)*2)
+LittrowNHemisphere(C)=(lam=real(C),phi=imag(C),sin(phi)<=0?NaN:sin(lam)/cos(phi)+I*(tan(phi)*cos(lam)))
+LittrowSHemisphere(C)=(lam=real(C),phi=imag(C),sin(phi)>=0?NaN:sin(lam)/cos(phi)+I*(tan(phi)*cos(lam)))
 CraigRetroazimuthal(C,phi1)=(lam=real(C),phi=imag(C),lam==0?I*(sin(phi)-cos(phi)*tan(phi1)):(lam-0)+I*(lam-0)*(sin(phi)*cos(lam-0)-cos(phi)*tan(phi1))/sin(lam-0))
 Loximuthal(C,phi1)=(lam=real(C),phi=imag(C),phi==phi1?lam*cos(phi1):lam*(phi-phi1)/log(tan(pi/4+phi/2)/tan(pi/4+phi1/2))+I*(phi-phi1))
 #TwoPointAz
@@ -152,6 +154,7 @@ Lagrange(C)=(imag(C)==pi/2?2*I:imag(C)==-pi/2?-2*I:EStereo(InvMercator(Mercator(
 #Lagrange(C)=(lam=real(C),phi=imag(C),c1=(1-tan(phi/2)**2)**0.5,c=1+c1*cos(lam/2),2*sin(lam/2)*c1/c+I*2*tan(phi/2)/c)
 Lagrange240(C)=(imag(C)==pi/2?2*I:imag(C)==-pi/2?-2*I:EStereo(InvMercator(Mercator(C)/1.5)))
 Lagrange270(C)=(imag(C)==pi/2?2*I:imag(C)==-pi/2?-2*I:EStereo(InvMercator(Mercator(C)*0.75)))
+#https://web.archive.org/web/20180929084109/http://progonos.com:80/furuti/MapProj/Normal/ProjConf/projConf.html
 EOrthoGilbertDoubleWorld(C)=EOrtho(InvMercator(Mercator(C)*0.5))
 InvLagrange(xy)=InvMercator(Mercator(InvEStereo(xy))*2)
 TLagrange(C)=(C==pi/2?2:C==-pi/2?-2:EStereo(InvMercator(TMercator(C)/2/I))*I)
@@ -189,15 +192,17 @@ Briesemeister(C)=EBriesemeister(Eulerzyz(C,10*RPD,135*RPD,0))
 #Using complex polynomial, or mixing a few projections
 Oblation(C,K,Q)=K*(C+Q/12.0*C**3)
 MillerOblatedStereo(C)=Oblation(NStereo(Eulerzyz(C,20*RPD,18*RPD,0)),0.9245,0.2522)
+#https://www.researchgate.net/publication/315860317_Combining_World_Map_Projections
 ArdenCloseCy(C)=(abs(imag(C))>85*RPD?1/0:(Mercator(C)+LambertCyEa(C))/2)
+#https://web.archive.org/web/20181004024945/http://www.progonos.com/furuti/MapProj/Normal/ProjOth/projOth.html
 ArdenCloseNovelty(C)=(cos(real(C))<0?NaN:(LambertCyEa(C)+TLambertCyEa(C))/2)
 #AugustEpicycloidal: scale factor: 0.5 @ center (differ from pp1453), max 4
 #http://www.quadibloc.com/maps/mcf0702.htm
 AugustEpicycloidal(C)=Oblation(Lagrange(C),1,1)
 TAugustEpicycloidal(C)=Oblation(TLagrange(C),1,-1)
-#FakeEisenlohr: scale factor: 0.5 @ center, max 3.1464
-FakeEisenlohr(C)=(z=Lagrange(C)*pi/4/I,sin(z)/pi*4*I)
-InvFakeEisenlohr(xy)=InvLagrange(asin(xy*pi/4/I)/pi*4*I)
+#FalseEisenlohr: scale factor: 0.5 @ center, max 3.1464
+FalseEisenlohr(C)=sin(Lagrange(C)*pi/4/I)/pi*4*I
+InvFalseEisenlohr(xy)=InvLagrange(asin(xy*pi/4/I)/pi*4*I)
 ACN_August(C)=(AugustEpicycloidal(C)+TAugustEpicycloidal(C))/2
 ACN_Lagrange(C)=(Lagrange(C)+TLagrange(C))/2
 #http://www.quadibloc.com/maps/mmi0901.htm
@@ -209,8 +214,8 @@ LatTLat(C)=(cos(real(C))<0?NaN:real(TCyEd(C))+I*imag(CyEd(C)))
 LateralEd(C)=EachScale(LatTLat(EachScale(C,0.5,1)),2,1)
 
 #Ž©ì My own work
-FakeMercator(C)=real(C)+I/(2/imag(C)-1/imag(LambertCyEa(C)))
-FakeArdenCloseCy(C)=real(C)+I*imag(LambertCyEa(C))/(2-imag(C)/imag(LambertCyEa(C)))
+FalseMercator(C)=real(C)+I/(2/imag(C)-1/imag(LambertCyEa(C)))
+FalseArdenCloseCy(C)=real(C)+I*imag(LambertCyEa(C))/(2-imag(C)/imag(LambertCyEa(C)))
 TwoLeavesWerner(C)=(real(C)>=0?Werner(C-pi/2)*I:Werner(C+pi/2)/I)
 AugustTwice(C)=AugustEpicycloidal(InvEStereo(AugustEpicycloidal(C)*1.5))
 NoName1(C)=EStereo(InvEStereo(real(C)*4/pi)+I*(imag(C)+0.5*(cos(real(C)/1.5)-0.5)*sin(imag(C))*cos(imag(C))))*pi/4
@@ -231,13 +236,13 @@ HamCyEa(C,n)=(n==0?Hammer(C):LambertCyEa(InvHammer(Hammer(C)*n))/n)
 HamTCyEa(C,n)=(n==0?Hammer(C):EachScale(LambertCyEa(InvEAzEa(EAzEa(EachScale(C,0.5,1))*n/I))/n*I,2,1))
 HammerPeters(C,n)=(ymax=(n==0?2**0.5:sin(asin(sin(pi/4)*n)*2)/n),EachScale(HamCyEa(C,n),(2**0.5/ymax)**-1,2**0.5/ymax))
 #
-ApproxQuincuncial(C)=(C1=ACN_Lagrange(C),C2=GeoMean(Lagrange(C),TLagrange(C)),z=GeoMean(C1,C2),z*1.461298+C1*-0.580510+C2*0.119212+z**5*0.00155830)
-#f(x)=real(ApproxQuincuncial((x+1)*pi/2)/1.3110287771460599)
 #ApproxQuincuncial(C)=(C1=ACN_Lagrange(C),C2=GeoMean(Lagrange(C),TLagrange(C)),z=GeoMean(C1,C2),z*(1-r1-r2)+C1*r1+C2*r2+z**5*r3/100.0)
+#f(x)=real(ApproxQuincuncial((x+1)*pi/2)/1.3110287771460599)
 #fit [x=0:1] f(x) '0to1-0-1.dat' using 1:3 via r1,r2,r3
 #r1=-0.580510, r2=0.119212, r3=0.155830
 #g(x)=real(ApproxQuincuncial((x+1)*pi/2)-1.3110287771460599)/real(ApproxQuincuncial((x+1)*pi/2)-ApproxQuincuncial((x+1)*pi/2+I*pi/2/10000))
 #within +-0.18 km
+ApproxQuincuncial(C)=(C1=ACN_Lagrange(C),C2=GeoMean(Lagrange(C),TLagrange(C)),z=GeoMean(C1,C2),z*1.461298+C1*-0.580510+C2*0.119212+z**5*0.00155830)
 #
 #ApproxEisenlohr(C)=(Q=-4.0/(2+2**3*r1/10+2**5*r2/100+2**7*r3/1000)**2,z=Lagrange(C)/I,z=Oblation((z+z**3*r1/10+z**5*r2/100+z**7*r3/1000),1,Q),(z+z**3*r4/10)*I)
 #f(x)=abs(ApproxEisenlohr(pi+I*(x)*pi/2-I*0.1e-6)-ApproxEisenlohr(pi+I*(x)*pi/2-I*1.1e-6))*1e6
