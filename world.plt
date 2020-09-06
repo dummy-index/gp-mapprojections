@@ -31,6 +31,7 @@ if (exist("WORLDMAP")==0) {
 #Az:azimuthal, Cy:cylindrical
 #Ed:equidistant, Ea:equal-area, C:conformal
 #C:conic
+#G:generalized
 
 #変数 Variables
 #C: 緯度経度, xy: 変換後平面座標, C1/C2/z/...: 一時変数
@@ -84,6 +85,8 @@ EOrtho(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=1,cosz<0?NaN:(K*cos(
 EStereo(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=(cosz<=-1?0:2/(1+cosz)),cosz<=-0.88-0.12?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 EAzEd(C)=(lam=real(C),phi=imag(C),z=acos(cos(phi)*cos(lam)),K=(z==0?1:z/sin(z)),z>=pi?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 EAzEa(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=(2/(1+cosz))**0.5,cosz<=-1?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
+EStereoTwoHemisphere(C)=(signl=(real(C)<0?-1:1),EStereo(C-signl*pi/2)+signl*2)
+EAzEdTwoHemisphere(C)=(signl=(real(C)<0?-1:1),EAzEd(C-signl*pi/2)+signl*pi/2)
 InvNStereo(xy)=(x=real(xy),y=imag(xy),rho=(x*x+y*y)**0.5,phi=pi/2-2*atan(rho/2),lam=(rho==0?0:atan2(x,-y)),lam+I*phi)
 InvEStereo(xy)=(x=real(xy),y=imag(xy),rho=(x*x+y*y)**0.5,c=2*atan(rho/2),phi=asin(y*(rho==0?1:sin(c)/rho)),lam=atan2(x*(rho==0?1:sin(c)/rho),cos(c)),lam+I*phi)
 InvEOrtho(xy)=(x=real(xy),y=imag(xy),phi=asin(y),lam=asin(x/cos(phi)),lam+I*phi)
@@ -124,7 +127,7 @@ Werner(C)=(lam=real(C),phi=imag(C),rho=pi/2-phi,n=cos(phi)/rho,rho*sin(n*lam)+I*
 AmericanPolyconic(C)=(lam=real(C),phi=imag(C),E=lam*sin(phi),rho=1/tan(phi),phi==0?lam:rho*sin(E)+I*(phi+rho*(1-cos(E))))
 RectangularPolyconic(C)=(lam=real(C),phi=imag(C),E=2*atan(lam/2*sin(phi)),rho=1/tan(phi),phi==0?lam:rho*sin(E)+I*(phi+rho*(1-cos(E))))
 
-#Miscellaneous
+#Ruler-and-compass constructions, or such conventional projections
 NWiechel(C)=(lam=real(C),phi=imag(C),rho=1,(-rho*cos(lam)+sin(lam+phi))+I*(-rho*sin(lam)-cos(lam+phi)))
 #Exercise: Prove that this projection is equal-area projection, in several ways.
 #memo https://commons.wikimedia.org/wiki/File:Tsubaki_crescent_shaped_plastic_chain.png
@@ -133,10 +136,13 @@ WiechelPseudoconic(C,phi1)=(lam=real(C),phi=imag(C),n=sin(phi1),rho=(n==0?0:1/n)
 Bacon(C)=(lam=real(C),phi=imag(C),y=pi/2*sin(phi),F=(lam==0?0:((pi/2)**2/abs(lam)+abs(lam))/2),lam==0?I*y:sgn(lam)*(abs(lam)-F+(F**2-y**2)**0.5)+I*y)
 Ortelius(C)=(lam=real(C),phi=imag(C),y=phi,F=(lam==0?0:((pi/2)**2/abs(lam)+abs(lam))/2),lam==0?I*y:abs(lam)<pi/2?sgn(lam)*(abs(lam)-F+(F**2-y**2)**0.5)+I*y:sgn(lam)*(abs(lam)-pi/2+((pi/2)**2-y**2)**0.5)+I*y)
 Nicolosi(C)=(lam=real(C),phi=imag(C),phi==0?lam:abs(lam)==pi/2?lam*cos(phi)+I*pi/2*sin(phi):(b=pi/2/lam-2*lam/pi,d=(1-(2*phi/pi)**2)/(sin(phi)-(2*phi/pi)),M=(b*sin(phi)/d-b/2)/(1+b**2/d**2),N=(d**2*sin(phi)/b**2+d/2)/(1+d**2/b**2),pi/2*(M+sgn(lam)*(M**2+cos(phi)**2/(1+b**2/d**2))**0.5)+I*pi/2*(N-sgn(phi*b*lam)*(N**2-(d**2*sin(phi)**2/b**2+d*sin(phi)-1)/(1+d**2/b**2))**0.5)))
+
+#Realizing the unusual properties
 #Eisenlohr: scale factor 0.5 @ center (differ from pp1453), 2.9141 @ peripheral
 Eisenlohr(C)=(lam=real(C),phi=imag(C),C1=cos(lam/2),T=sin(phi/2)/(cos(phi/2)+(2*cos(phi))**0.5*C1),C2=(2/(1+T**2))**0.5,V=((cos(phi/2)+(cos(phi)/2)**0.5*(C1+sin(lam/2)))/(cos(phi/2)+(cos(phi)/2)**0.5*(C1-sin(lam/2))))**0.5,(1.5+2**0.5)*((-2*log(V)+C2*(V-V**-1))+I*(-2*atan(T)+C2*T*(V+V**-1))))
-#
 Littrow(C)=(lam=real(C),phi=imag(C),cos(phi)*cos(lam)<=0?NaN:sin(lam)/cos(phi)+I*(tan(phi)*cos(lam)))
+#pp1453 says that Littrow is one of configuration of the generalized Lagrange
+#but no explanation why it becomes retroazimuthal
 #Littrow(C)=(z=EStereo(C)/2,abs(z)>=1?NaN:z/(1+z**2)*2)
 LittrowNHemisphere(C)=(lam=real(C),phi=imag(C),sin(phi)<=0?NaN:sin(lam)/cos(phi)+I*(tan(phi)*cos(lam)))
 LittrowSHemisphere(C)=(lam=real(C),phi=imag(C),sin(phi)>=0?NaN:sin(lam)/cos(phi)+I*(tan(phi)*cos(lam)))
@@ -149,7 +155,8 @@ Loximuthal(C,phi1)=(lam=real(C),phi=imag(C),phi==phi1?lam*cos(phi1):lam*(phi-phi
 #Lagrange: scale factor 0.5 @ center (same as pp1453)
 #http://www.quadibloc.com/maps/mcf0701.htm
 Lagrange(C)=(imag(C)==pi/2?2*I:imag(C)==-pi/2?-2*I:EStereo(InvMercator(Mercator(C)*0.5)))
-#Lagrange(C)=(lam=real(C),phi=imag(C),W=2.0,V=((1+sin(phi))/(1-sin(phi)))**(0.5/W),LC=(V+1/V)/2+cos(lam/W),real(2*sin(lam/W)/LC)+I*((V-1/V)/LC))
+LagrangeG(C,W,phi1)=(lam=real(C),phi=imag(C),A1=((1+sin(phi1))/(1-sin(phi1)))**(0.5/W),V=((1+sin(phi))/(1-sin(phi)))**(0.5/W)/A1,LC=(V+1/V)/2+cos(lam/W),real(2*sin(lam/W)/LC)+I*((V-1/V)/LC))
+#LagrangeG(C,W,phi1)=(imag(C)==pi/2?2*I:imag(C)==-pi/2?-2*I:EStereo(InvMercator((Mercator(C)-I*imag(Mercator(I*phi1)))/W)))
 #Lagrange(C)=(C==pi?2:C==-pi?-2:(z=EStereo(C)/2/I,z/(1+(1-z)**0.5*(1+z)**0.5)*2*I))
 #Lagrange(C)=(lam=real(C),phi=imag(C),c1=(1-tan(phi/2)**2)**0.5,c=1+c1*cos(lam/2),2*sin(lam/2)*c1/c+I*2*tan(phi/2)/c)
 Lagrange240(C)=(imag(C)==pi/2?2*I:imag(C)==-pi/2?-2*I:EStereo(InvMercator(Mercator(C)/1.5)))
@@ -158,11 +165,16 @@ Lagrange270(C)=(imag(C)==pi/2?2*I:imag(C)==-pi/2?-2*I:EStereo(InvMercator(Mercat
 EOrthoGilbertDoubleWorld(C)=EOrtho(InvMercator(Mercator(C)*0.5))
 InvLagrange(xy)=InvMercator(Mercator(InvEStereo(xy))*2)
 TLagrange(C)=(C==pi/2?2:C==-pi/2?-2:EStereo(InvMercator(TMercator(C)/2/I))*I)
+TLagrange2UHalfPlane(C)=imag(C)<0?TLagrange(C)**-1:TLagrange(C)
+TLagrange2LHalfPlane(C)=imag(C)>0?TLagrange(C)**-1:TLagrange(C)
 
 #Aitoff projection and its modifications
 #Meridian duplication ~ Das Umbeziffen
 #Strebe(2018) https://research.tableau.com/paper/bevy-area-preserving-transforms-map-projection-designers
 #https://map-projections.net/wagner-umbeziffern.php
+#or Hatano's study for making the equal-area projections derived from the Mollweide
+#https://www.jstage.jst.go.jp/article/grj1925/39/4/39_4_229/_article
+#
 Aitoff(C)=EachScale(EAzEd(EachScale(C,0.5,1)),2,1)
 Hammer(C)=EachScale(EAzEa(EachScale(C,0.5,1)),2,1)
 EckertGreifendorff(C)=EachScale(EAzEa(EachScale(C,0.25,1)),4,1)
@@ -174,9 +186,13 @@ WagnerIV(C)=EachScale(Mollweide(InvLambertCyEa(EachScale(LambertCyEa(C),1,2.0/3+
 #http://www.quadibloc.com/maps/mmi0902.htm
 WagnerIX(C)=EachScale(EAzEa(EachScale(C,5/18.0,7/9.0)),18.0/5,9.0/7)
 #神谷(2012) https://www.jstage.jst.go.jp/article/jjca/50/3/50_3_1/_article/-char/ja/
+#エイトフ変換という言い方は以前から存在している
+#https://www.jstage.jst.go.jp/article/jjca1963/3/1/3_1_33/_article/-char/ja
+#英語だとAitoff's transformation methodとなるが、用例が少ない
+#http://www.cartography.oregonstate.edu/pdf/2014_Savric_Jenny_ANewPseudocylindricalEqual-areaProjection.pdf
 AitoffTrans_Stereo(C)=EachScale(EStereo(EachScale(C,0.5,1)),2,1)
 #https://www.mapthematics.com/forums/viewtopic.php?f=8&t=559
-OrthographicAitoff(C)=EachScale(EOrtho(EachScale(C1,0.5,1)),2,1)
+OrthographicAitoff(C)=EachScale(EOrtho(EachScale(C,0.5,1)),2,1)
 #https://arxiv.org/abs/astro-ph/0608500
 GottEaElliptical(C)=EachScale(BromleyMollweide(InvEStereo(EStereo(EachScale(C,0.5,1))/I))*I,2,1)
 InvHammer(xy)=EachScale(InvEAzEa(EachScale(xy,0.5,1)),2,1)
@@ -212,8 +228,12 @@ LaskowskiTriOptimal(C)=(lam=real(C),phi=imag(C),0.975534*lam-0.119161*lam*phi**2
 #https://www.mapthematics.com/ProjectionsList.php?Projection=320#lateral%20equidistant
 LatTLat(C)=(cos(real(C))<0?NaN:real(TCyEd(C))+I*imag(CyEd(C)))
 LateralEd(C)=EachScale(LatTLat(EachScale(C,0.5,1)),2,1)
+#https://www.mapthematics.com/forums/viewtopic.php?f=8&t=633&sid=f8ccb8db8fed3fdb4b19a2480e4281bb#p1618
+RoundedMercator(C)=abs(imag(C))>pi/4?(signp=(imag(C)<0?-1:1),EachScale(EAzEdTwoHemisphere(EachScale(C-signp*I*pi/4,1,2)),1,0.5**0.5)+I*imag(Mercator(signp*I*pi/4))):Mercator(C)
+#SemicircularlyRoundedMercator(C)=abs(imag(C))>pi/4?(signp=(imag(C)<0?-1:1),EAzEdTwoHemisphere(InvMercator(Mercator(C)-signp*I*imag(Mercator(I*pi/4))))+I*imag(Mercator(signp*I*pi/4))):Mercator(C)
 
 #自作 My own work
+#FalseCyEd(C)=real(C)+I*2/(1/imag(Mercator(C))+1/imag(LambertCyEa(C)))
 FalseMercator(C)=real(C)+I/(2/imag(C)-1/imag(LambertCyEa(C)))
 FalseArdenCloseCy(C)=real(C)+I*imag(LambertCyEa(C))/(2-imag(C)/imag(LambertCyEa(C)))
 TwoLeavesWerner(C)=(real(C)>=0?Werner(C-pi/2)*I:Werner(C+pi/2)/I)
@@ -230,6 +250,7 @@ EAzEaWiechel(C)=(lam=real(C),phi=imag(C),abs(lam)<=pi/2?EAzEa(C):lam>=0?(phi>=0?
 #ComplementaryEckertGreifendorff(C)=(signl=(real(C)<0?-1:1),z=Hammer(EachScale(C,0.5,1)+signl*pi/2),EachScale(z-real(Hammer(signl*pi/2+I*Invphi_Hammer(0,signl*pi/2,imag(z)))),2,1))
 lamy2x_EAzEa(lam,y)=2**-0.5*((cos(lam)**2-2)*y**2-cos(lam)*(cos(lam)**2*y**4-8*y**2+16)**0.5+4)**0.5*sgn(lam)*sgn((cos(lam)**2*y**4-8*y**2+16)**0.5-2*cos(lam))
 ComplementaryEckertGreifendorff(C)=(signl=(real(C)<0?-1:1),z=EAzEa(EachScale(C,0.25,1)+signl*pi/4),EachScale(z-lamy2x_EAzEa(signl*pi/4,imag(z)),4,1))
+ComplementaryEckertGreifendorffG(C,lams)=(W=(pi/2-lams)/pi,signl=(real(C)<0?-1:1),z=EAzEa(EachScale(C,W,1)+signl*lams),EachScale(z-lamy2x_EAzEa(signl*lams,imag(z)),W**-1,1))
 #
 #Strebe's homotopy
 HamCyEa(C,n)=(n==0?Hammer(C):LambertCyEa(InvHammer(Hammer(C)*n))/n)
@@ -267,6 +288,30 @@ ApproxEisenlohr90(C)=(n=EStereo(pi/2)/EStereo(pi/4),Q=(2.80979184)/(1.5597408),z
 #r1=-0.975065, r2=-1.04292, r3=0.170893, r4=0.220625, r5=12.6371
 #scale factor: 0.5 @ center, max 12.638
 ApproxEisenlohr270(C)=(n=EStereo(pi/2)/EStereo(pi*3/4),Q=(1.27463376)/(0.618132),z=Lagrange(Inflation(C,n))/I,z=(z+z**3*-0.0975065+z**5*0.00170893)/(1+z**2*-0.104292+z**4*0.00220625),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)/n*I)
+#
+#conformal version of https://www.mapthematics.com/forums/viewtopic.php?f=8&t=633&sid=f8ccb8db8fed3fdb4b19a2480e4281bb#p1618
+NHemisphere2Sphere(C)=InvEStereo(LittrowNHemisphere(C)*2)
+SHemisphere2Sphere(C)=InvEStereo(LittrowSHemisphere(C)*2)
+Sphere2NHemisphere(C)=InvEStereo(TLagrange2UHalfPlane(C))
+Sphere2SHemisphere(C)=InvEStereo(TLagrange2LHalfPlane(C))
+#ApproxEisenlohr_CRM(C)=(Q=(2+2**3*r1/10+2**5*r3/100)/(1+2**2*r2/10+2**4*r4/100),z=Lagrange(C)/I,z=(z+z**3*r1/10+z**5*r3/100)/(1+z**2*r2/10+z**4*r4/100),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)*I)
+#ApproxConformalRoundedMercator(C)=Mercator(imag(C)<0?Sphere2SHemisphere(InvEStereo(ApproxEisenlohr_CRM(SHemisphere2Sphere(C))/ApproxEisenlohr_CRM(pi/2)*2)):Sphere2NHemisphere(InvEStereo(ApproxEisenlohr_CRM(NHemisphere2Sphere(C))/ApproxEisenlohr_CRM(pi/2)*2)))
+#CRM1: constant scale along interruption
+#f(x)=abs(ConformalRoundedMercator(I*(1+x)*pi/4+I*1.1e-4)-ConformalRoundedMercator(I*(1+x)*pi/4+I*0.1e-4))*1e4
+#fit [x=0:1] f(x**2)/r5 '0to1-0-1.dat'using 1:3 via r1,r2,r3,r4,r5
+#r1=-0.164059, r2=0.0997807, r3=-0.0275333, r4=-0.0994837, r5=2.62206
+#scale factor on CRM1: 1.086 @ center, 0.927 @ 90°W/E, 2.62198~2.62214 @ peripheral
+ApproxEisenlohr_CRM1(C)=(Q=1.81635881760378,z=Lagrange(C)/I,z=(z+z**3*-0.0164059+z**5*-0.000275333)/(1+z**2*0.00997807+z**4*-0.000994837),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)*I)
+ApproxConformalRoundedMercator1(C)=Mercator(imag(C)<0?Sphere2SHemisphere(InvEStereo(ApproxEisenlohr_CRM1(SHemisphere2Sphere(C))/ApproxEisenlohr_CRM1(pi/2)*2)):Sphere2NHemisphere(InvEStereo(ApproxEisenlohr_CRM1(NHemisphere2Sphere(C))/ApproxEisenlohr_CRM1(pi/2)*2)))
+#CRM2: makes interruption semicircles
+#f(x)=abs(ConformalRoundedMercator(I*(1+x)*pi/4)-(pi/2+I*imag(ConformalRoundedMercator(I*pi/4))))
+#fit [x=0:1] f(x**2)/(pi/2) '0to1-0-1.dat'using 1:3 via r1,r2,r3,r4
+#r1=0.0444918, r2=0.568859, r3=-0.0725106, r4=-0.151152
+#radius: 1.57076~1.57082
+#scale factor on CRM2: 1.046 @ center, 0.959 @ 90°W/E, max 4.15 @ pole
+ApproxEisenlohr_CRM2(C)=(Q=1.67231024137696,z=Lagrange(C)/I,z=(z+z**3*0.00444918+z**5*-0.000725106)/(1+z**2*0.0568859+z**4*-0.00151152),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)*I)
+ApproxConformalRoundedMercator2(C)=Mercator(imag(C)<0?Sphere2SHemisphere(InvEStereo(ApproxEisenlohr_CRM2(SHemisphere2Sphere(C))/ApproxEisenlohr_CRM2(pi/2)*2)):Sphere2NHemisphere(InvEStereo(ApproxEisenlohr_CRM2(NHemisphere2Sphere(C))/ApproxEisenlohr_CRM2(pi/2)*2)))
+
 
 #Baseball projection, alpha version
 PMercator(C)=(lam=real(C),phi=imag(C),B=-cos(phi)*cos(lam),(atan2(sin(lam),tan(phi)))+I*0.5*log((1+B)/(1-B)))
@@ -314,7 +359,7 @@ BaseballCurve(t)=NBaseballStrip(InvNStereo(NS_BaseballCurve(t)))
 
 #以下未整理
 
-AitoffLagrange(C)=EachScale(Lagrange270(EachScale(C1,1/1.5,1)),1.5,1)
+AitoffLagrange(C)=EachScale(Lagrange270(EachScale(C,1/1.5,1)),1.5,1)
 AitoffTrans_TSinusoidal(C)=EachScale(TSinusoidal(EachScale(C,0.5,1)),2,1)
 AitoffTrans_TCyEd(C)=EachScale(TCyEd(EachScale(C,0.5,1)),2,1)
 Aitoff1p6(C)=EachScale(EAzEd(EachScale(C,1/1.6,1)),1.6,1)
