@@ -31,7 +31,7 @@ if (exist("WORLDMAP")==0) {
 #Az:azimuthal, Cy:cylindrical
 #Ed:equidistant, Ea:equal-area, C:conformal
 #C:conic
-#G:generalized
+#G:generalized (ex. Lagrange(): by Lambert, LagrangeG(): generalized version by Lagrange)
 
 #変数 Variables
 #C: 緯度経度, xy: 変換後平面座標, C1/C2/z/...: 一時変数
@@ -85,6 +85,7 @@ EOrtho(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=1,cosz<0?NaN:(K*cos(
 EStereo(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=(cosz<=-1?0:2/(1+cosz)),cosz<=-0.88-0.12?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 EAzEd(C)=(lam=real(C),phi=imag(C),z=acos(cos(phi)*cos(lam)),K=(z==0?1:z/sin(z)),z>=pi?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 EAzEa(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=(2/(1+cosz))**0.5,cosz<=-1?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
+SStereo(C)=conj(NStereo(conj(C)))
 EStereoTwoHemisphere(C)=(signl=(real(C)<0?-1:1),EStereo(C-signl*pi/2)+signl*2)
 EAzEdTwoHemisphere(C)=(signl=(real(C)<0?-1:1),EAzEd(C-signl*pi/2)+signl*pi/2)
 InvNStereo(xy)=(x=real(xy),y=imag(xy),rho=(x*x+y*y)**0.5,phi=pi/2-2*atan(rho/2),lam=(rho==0?0:atan2(x,-y)),lam+I*phi)
@@ -110,6 +111,8 @@ InvSinusoidal(xy)=(x=real(xy),y=imag(xy),x/cos(y)+I*y)
 InvMollweide(xy)=(x=real(xy),y=imag(xy),th=asin(y/2**0.5),pi/2**1.5*x/cos(th)+I*asin((2*th+sin(2*th))/pi))
 TSinusoidal(C)=(lam=real(C),phi=imag(C),B=cos(phi)*sin(lam),asin(B)+I*(cos(asin(B))*atan2(tan(phi),cos(lam))))
 #WagnerI ~ WagnerVI -> into #Aitoff...
+#Hufnagel projection family is a further develeopment of the parametric angle
+#https://www.mapthematics.com/interactive/hufnagel.html
 
 #円錐図法 Conic projections
 #標準緯線1本の式のみ提示 only tangent projections
@@ -169,7 +172,7 @@ TLagrange2UHalfPlane(C)=imag(C)<0?TLagrange(C)**-1:TLagrange(C)
 TLagrange2LHalfPlane(C)=imag(C)>0?TLagrange(C)**-1:TLagrange(C)
 
 #Aitoff projection and its modifications
-#Meridian duplication ~ Das Umbeziffen
+#Meridian duplication ~ Das Umbeziffern
 #Strebe(2018) https://research.tableau.com/paper/bevy-area-preserving-transforms-map-projection-designers
 #https://map-projections.net/wagner-umbeziffern.php
 #or Hatano's study for making the equal-area projections derived from the Mollweide
@@ -239,6 +242,7 @@ FalseArdenCloseCy(C)=real(C)+I*imag(LambertCyEa(C))/(2-imag(C)/imag(LambertCyEa(
 TwoLeavesWerner(C)=(real(C)>=0?Werner(C-pi/2)*I:Werner(C+pi/2)/I)
 AugustTwice(C)=AugustEpicycloidal(InvEStereo(AugustEpicycloidal(C)*1.5))
 NoName1(C)=EStereo(InvEStereo(real(C)*4/pi)+I*(imag(C)+0.5*(cos(real(C)/1.5)-0.5)*sin(imag(C))*cos(imag(C))))*pi/4
+StereoEa(C)=(lam=real(C),phi=imag(C),(cos(2*Newton_MollTh(0,phi))+1+I*sin(2*Newton_MollTh(0,phi)))*sqrt(lam*2/pi+2))
 #
 #Combined
 EAzEaOval(C)=(lam=real(C),phi=imag(C),abs(lam)<=pi/2?EAzEa(C):((lam-pi/2*sgn(lam))*0.5+cos(phi)*sgn(lam))*2**0.5+I*sin(phi)*2**0.5)
@@ -289,7 +293,7 @@ ApproxEisenlohr90(C)=(n=EStereo(pi/2)/EStereo(pi/4),Q=(2.80979184)/(1.5597408),z
 #scale factor: 0.5 @ center, max 12.638
 ApproxEisenlohr270(C)=(n=EStereo(pi/2)/EStereo(pi*3/4),Q=(1.27463376)/(0.618132),z=Lagrange(Inflation(C,n))/I,z=(z+z**3*-0.0975065+z**5*0.00170893)/(1+z**2*-0.104292+z**4*0.00220625),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)/n*I)
 #
-#conformal version of https://www.mapthematics.com/forums/viewtopic.php?f=8&t=633&sid=f8ccb8db8fed3fdb4b19a2480e4281bb#p1618
+#conformal version of RoundedMercator
 NHemisphere2Sphere(C)=InvEStereo(LittrowNHemisphere(C)*2)
 SHemisphere2Sphere(C)=InvEStereo(LittrowSHemisphere(C)*2)
 Sphere2NHemisphere(C)=InvEStereo(TLagrange2UHalfPlane(C))
@@ -324,8 +328,8 @@ BaseballCurve(t)=NBaseballStrip(InvNStereo(NS_BaseballCurve(t)))
 #g(x)=(f(x*0.5)-f(1-x*0.5))*10
 #set fit lambda_factor 2
 #fit [x=0:1] g(x) '0to1-0-1.dat' using 1:2 via r1,r2
-#plot 'full-15.dat' using (C1=($1+I*$2)*RPD,C2=NStereo(C1),real(C2)):(imag(C2)) w l, 'full-15.dat' using (C1=($1+I*$2)*RPD,C2=NBaseballStrip(C1),real(C2)):(imag(C2)) w l, real(BaseballCurve(t)),imag(BaseballCurve(t))
-#plot 'full-15.dat' using (C1=($1+I*$2)*RPD,C2=NOrtho(C1),real(C2)):(imag(C2)) w l, real(NOrtho(InvNStereo(NS_BaseballCurve(t)))),imag(NOrtho(InvNStereo(NS_BaseballCurve(t)))),cos(t),sin(t)
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=NStereo(C),real(xy)):(imag(xy)) w l, 'full-15.dat' using (C=($1+I*$2)*RPD,xy=NBaseballStrip(C),real(xy)):(imag(xy)) w l, real(BaseballCurve(t)),imag(BaseballCurve(t))
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=NOrtho(C),real(xy)):(imag(xy)) w l, real(NOrtho(InvNStereo(NS_BaseballCurve(t)))),imag(NOrtho(InvNStereo(NS_BaseballCurve(t)))),cos(t),sin(t)
 #plot t,f(t), t,g(t)
 #NBaseballStrip(C)=(z=PStercator(C,r1),z*(1-r3)+z/(1+(1-z*r2)**0.5*(1+z*r2)**0.5)*2*r3+z**5*r4)
 #NS_BaseballCurve(t)=(z=exp(I*t),2*z*exp(I*imag(z**4/4*0.5)+real(z**2*1.5*0.5)))
@@ -389,13 +393,13 @@ plot 'world.dat' w l
 pause -1
 plot WORLDMAP w l
 pause -1
-plot 'full-15.dat' using (C1=($1+I*$2)*RPD,C2=Mercator(C1),real(C2)):(imag(C2)) w l, WORLDMAP using (C1=($1+I*$2)*RPD,C2=Mercator(C1),real(C2)):(imag(C2)) w l
+plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=Mercator(C),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=Mercator(C),real(xy)):(imag(xy)) w l
 pause -1
 
 #open-mouse sinusoidal I
-#plot [-3:3][-2:2]'full-15.dat' using (C1=($1+I*$2)*RPD,C2=Sinusoidal(C1)+sgn($1)*(((pi/2)**2-imag(C1)**2)**0.5-pi/2*cos(imag(C1))),real(C2)):(imag(C2)) w l, 'full-15.dat' using (C1=($1+I*$2)*RPD,C2=TSinusoidal(C1),C2=C2+I*sgn($2)*(((pi/2)**2-real(C2)**2)**0.5-pi/2*cos(real(C2))),real(C2)):(imag(C2)) w l,((pi/2)**2-x**2)**0.5
+#plot [-3:3][-2:2]'full-15.dat' using (C=($1+I*$2)*RPD,xy=Sinusoidal(C)+sgn($1)*(((pi/2)**2-imag(C)**2)**0.5-pi/2*cos(imag(C))),real(xy)):(imag(xy)) w l, 'full-15.dat' using (C=($1+I*$2)*RPD,xy=TSinusoidal(C),xy=xy+I*sgn($2)*(((pi/2)**2-real(xy)**2)**0.5-pi/2*cos(real(xy))),real(xy)):(imag(xy)) w l,((pi/2)**2-x**2)**0.5
 #open-mouse sinusoidal II
-#plot [-3:3][-2:2]'full-15.dat' using (C1=($1+I*$2)*RPD,C2=Sinusoidal(C1),C2=C2+I*sgn($2)*(((pi/2)**2-real(C2)**2)**0.5-acos(abs(real(C2))/pi*2)),(cos(real(C1))<0?C2=NaN:0),real(C2)):(imag(C2)) w l, 'full-15.dat' using (C1=($1+I*$2)*RPD,C2=TSinusoidal(C1),C2=C2+sgn($1)*(((pi/2)**2-imag(C2)**2)**0.5-acos(abs(imag(C2))/pi*2)),(cos(real(C1))<0?C2=NaN:0),real(C2)):(imag(C2)) w l,((pi/2)**2-x**2)**0.5
+#plot [-3:3][-2:2]'full-15.dat' using (C=($1+I*$2)*RPD,xy=Sinusoidal(C),xy=xy+I*sgn($2)*(((pi/2)**2-real(xy)**2)**0.5-acos(abs(real(xy))/pi*2)),(cos(real(C))<0?xy=NaN:0),real(xy)):(imag(xy)) w l, 'full-15.dat' using (C=($1+I*$2)*RPD,xy=TSinusoidal(C),xy=xy+sgn($1)*(((pi/2)**2-imag(xy)**2)**0.5-acos(abs(imag(xy))/pi*2)),(cos(real(C))<0?xy=NaN:0),real(xy)):(imag(xy)) w l,((pi/2)**2-x**2)**0.5
 } else {
 if (ARG1 eq 'defstrainfunc') {
 str='vmer(C)=('.ARG2.'(C+{0,-1e-6})-'.ARG2.'(C+{0,1e-6}))/2e-6'
@@ -412,7 +416,7 @@ angledeform(C)=2*asin(((a2b2-2*areascale)/(a2b2+2*areascale))**0.5)
 #a+b=(a2b2+2*areascale)**0.5,a-b=(a2b2-2*areascale)**0.5
 #a/b+b/a=a2b2/areascale
 #a/b+b/a-2=(a2b2-2*areascale)/areascale=((a-b)/areascale**0.5)**2 せん断ひずみエネルギーとして採用
-#areascale(C1)+1/areascale(C1)-2 第1項はピストン外の大気圧、第2項はピストン内の等圧変化 面積ひずみエネルギーとして採用
+#areascale(C)+1/areascale(C)-2 第1項はピストン外の大気圧、第2項はピストン内の等圧変化 面積ひずみエネルギーとして採用
 #神谷(2012)「ただし、各図法は、Esnを最小とするように、拡大または縮小を行っている。」
 #全体の面積を正積図法と合わせるようにすると面積ひずみエネルギーが最小に近くなる
 #NStereo(C)/2**0.5*1.04,NAzEd(C)/pi*2**1.5*1.004
@@ -438,15 +442,15 @@ unset contour
 unset dgrid3d
 set terminal wxt 11
 ene=0
-splot 'upright-1.dat' using (C1=($1+I*$2)*RPD,C2=@ARG2(C1),real(C2)):(imag(C2)):(ene=ene+(areascale(C1)+1/areascale(C1)-2)*cos(imag(C1)),areascale(C1)) with pm3d
+splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C)+1/areascale(C)-2)*cos(imag(C)),areascale(C)) with pm3d
 print 'areaenergy(1/4) =', ene/180/90*pi/2
-#splot 'upright-1.dat' using (C1=($1+I*$2)*RPD,C2=@ARG2(C1),real(C2)):(imag(C2)):(ene=ene+(areascale(C1)+1/areascale(C1)-2),areascale(C1)) with pm3d
+#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C)+1/areascale(C)-2),areascale(C)) with pm3d
 #print 'areaenergy(pole-heavy)(1/4) =', ene/180/90
 set terminal wxt 12
 ene=0
-splot 'upright-1.dat' using (C1=($1+I*$2)*RPD,C2=@ARG2(C1),real(C2)):(imag(C2)):(ene=ene+(a2b2(C1)/areascale(C1)-2)*cos(imag(C1)),a2b2(C1)/areascale(C1)-2) with pm3d
+splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(a2b2(C)/areascale(C)-2)*cos(imag(C)),a2b2(C)/areascale(C)-2) with pm3d
 print 'shearenergy(1/4)=', ene/180/90*pi/2
-#splot 'upright-1.dat' using (C1=($1+I*$2)*RPD,C2=@ARG2(C1),real(C2)):(imag(C2)):(ene=ene+(a2b2(C1)/areascale(C1)-2),a2b2(C1)/areascale(C1)-2) with pm3d
+#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(a2b2(C)/areascale(C)-2),a2b2(C)/areascale(C)-2) with pm3d
 #print 'shearenergy(pole-heavy)(1/4)=', ene/180/90
 set terminal wxt 13
 }
