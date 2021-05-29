@@ -74,6 +74,7 @@ InvLambertCyEa(xy)=real(xy)+I*(asin(imag(xy)))
 TCyEd(C)=(lam=real(C),phi=imag(C),B=cos(phi)*sin(lam),asin(B)+I*(atan2(tan(phi),cos(lam))))
 TMercator(C)=(lam=real(C),phi=imag(C),B=cos(phi)*sin(lam),B*B==1?NaN:0.5*log((1+B)/(1-B))+I*(atan2(tan(phi),cos(lam))))
 TLambertCyEa(C)=(lam=real(C),phi=imag(C),B=cos(phi)*sin(lam),B+I*(atan2(tan(phi),cos(lam))))
+InvTCyEd(xy)=(x=real(xy),y=imag(xy),phi=asin(sin(y)*cos(x)),lam=atan2(tan(x),cos(y)),lam+I*phi)
 #ArdenCloseCy -> into #arithmetical
 
 #•ûˆÊ}–@ Azimuthal projections
@@ -209,16 +210,16 @@ Briesemeister(C)=EBriesemeister(Eulerzyz(C,10*RPD,135*RPD,0))
 
 #Arithmetical
 #Using complex polynomial, or mixing a few projections
-Oblation(C,K,Q)=K*(C+Q/12.0*C**3)
-MillerOblatedStereo(C)=Oblation(NStereo(Eulerzyz(C,20*RPD,18*RPD,0)),0.9245,0.2522)
+COblation(C,K,Q)=K*(C+Q/12.0*C**3)
+MillerOblatedStereo(C)=COblation(NStereo(Eulerzyz(C,20*RPD,18*RPD,0)),0.9245,0.2522)
 #https://www.researchgate.net/publication/315860317_Combining_World_Map_Projections
 ArdenCloseCy(C)=(abs(imag(C))>85*RPD?1/0:(Mercator(C)+LambertCyEa(C))/2)
 #https://web.archive.org/web/20181004024945/http://www.progonos.com/furuti/MapProj/Normal/ProjOth/projOth.html
 ArdenCloseNovelty(C)=(cos(real(C))<0?NaN:(LambertCyEa(C)+TLambertCyEa(C))/2)
 #AugustEpicycloidal: scale factor: 0.5 @ center (differ from pp1453), max 4
 #http://www.quadibloc.com/maps/mcf0702.htm
-AugustEpicycloidal(C)=Oblation(Lagrange(C),1,1)
-TAugustEpicycloidal(C)=Oblation(TLagrange(C),1,-1)
+AugustEpicycloidal(C)=COblation(Lagrange(C),1,1)
+TAugustEpicycloidal(C)=COblation(TLagrange(C),1,-1)
 #FalseEisenlohr: scale factor: 0.5 @ center, max 3.1464
 FalseEisenlohr(C)=sin(Lagrange(C)*pi/4/I)/pi*4*I
 InvFalseEisenlohr(xy)=InvLagrange(asin(xy*pi/4/I)/pi*4*I)
@@ -269,12 +270,12 @@ HammerPeters(C,n)=(ymax=(n==0?2**0.5:sin(asin(sin(pi/4)*n)*2)/n),EachScale(HamCy
 #within +-0.18 km
 ApproxQuincuncial(C)=(C1=ACN_Lagrange(C),C2=GeoMean(Lagrange(C),TLagrange(C)),z=GeoMean(C1,C2),z*1.461298+C1*-0.580510+C2*0.119212+z**5*0.00155830)
 #
-#ApproxEisenlohr(C)=(Q=-4.0/(2+2**3*r1/10+2**5*r2/100+2**7*r3/1000)**2,z=Lagrange(C)/I,z=Oblation((z+z**3*r1/10+z**5*r2/100+z**7*r3/1000),1,Q),(z+z**3*r4/10)*I)
+#ApproxEisenlohr(C)=(Q=-4.0/(2+2**3*r1/10+2**5*r2/100+2**7*r3/1000)**2,z=Lagrange(C)/I,z=COblation((z+z**3*r1/10+z**5*r2/100+z**7*r3/1000),1,Q),(z+z**3*r4/10)*I)
 #f(x)=abs(ApproxEisenlohr(pi+I*(x)*pi/2-I*0.1e-6)-ApproxEisenlohr(pi+I*(x)*pi/2-I*1.1e-6))*1e6
 #fit [x=0:1] f(1-(1-x)**2)*2/(3+8**0.5) '0to1-0-1.dat'using 1:3 via r1,r2,r3,r4
 #r1=-0.167040, r2=0.0408032, r3=-0.00796779, r4=-0.00751721
 #scale factor: 0.5 @ center, max 2.9147
-#ApproxEisenlohr(C)=(Q=-4.0/1.87840514688**2,z=Lagrange(C)/I,z=Oblation((z+z**3*-0.0167040+z**5*0.000408032+z**7*-0.00000796779),1,Q),(z+z**3*-0.000751721)*I)
+#ApproxEisenlohr(C)=(Q=-4.0/1.87840514688**2,z=Lagrange(C)/I,z=COblation((z+z**3*-0.0167040+z**5*0.000408032+z**7*-0.00000796779),1,Q),(z+z**3*-0.000751721)*I)
 #ApproxEisenlohr(C)=(Q=(2+2**3*r1/10+2**5*r3/100)/(1+2**2*r2/10+2**4*r4/100),z=Lagrange(C)/I,z=(z+z**3*r1/10+z**5*r3/100)/(1+z**2*r2/10+z**4*r4/100),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)*I)
 #r1=-0.0505242, r2=0.00344757, r3=-0.0641668, r4=-0.0903435
 #scale factor: 0.5 @ center, max 2.9143
@@ -315,6 +316,27 @@ ApproxConformalRoundedMercator1(C)=Mercator(imag(C)<0?Sphere2SHemisphere(InvESte
 #scale factor on CRM2: 1.046 @ center, 0.959 @ 90‹W/E, max 4.15 @ pole
 ApproxEisenlohr_CRM2(C)=(Q=1.67231024137696,z=Lagrange(C)/I,z=(z+z**3*0.00444918+z**5*-0.000725106)/(1+z**2*0.0568859+z**4*-0.00151152),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)*I)
 ApproxConformalRoundedMercator2(C)=Mercator(imag(C)<0?Sphere2SHemisphere(InvEStereo(ApproxEisenlohr_CRM2(SHemisphere2Sphere(C))/ApproxEisenlohr_CRM2(pi/2)*2)):Sphere2NHemisphere(InvEStereo(ApproxEisenlohr_CRM2(NHemisphere2Sphere(C))/ApproxEisenlohr_CRM2(pi/2)*2)))
+#
+#Generalized Circular Hammer
+EaOblation_TRemap2R(C,n)=(C1=TCyEd(C),imag(C1)>(1-n)*pi?InvTCyEd(EachScale(C1-I*pi,1,0.5/n)+I*pi):imag(C1)>-(1-n)*pi?InvTCyEd(EachScale(C1,1,0.5/(1-n))):InvTCyEd(EachScale(C1+I*pi,1,0.5/n)-I*pi))
+EaOblation_RemapR2(C,n)=(C1=CyEd(C),real(C1)>0.5*pi?InvCyEd(EachScale(C1-pi,n/0.5,1)+pi):real(C1)>-0.5*pi?InvCyEd(EachScale(C1,(1-n)/0.5,1)):InvCyEd(EachScale(C1+pi,n/0.5,1)-pi))
+EaOblation(C,n)=EaOblation_RemapR2(EaOblation_TRemap2R(C,n),n)
+GeneralizedCircularHammer(C,n)=(n==0?EachScale(EAzEa(InvTCyEd(EachScale(TCyEd(C),1,0.5))),2**0.5,2**0.5):CircularHammer(EaOblation(C,n)))
+#Critical Circular Equal-area, under development
+CriticalCircularEa_Test0(C)=GeneralizedCircularHammer(C,pi/(2+pi))
+EaOblation_TRemapR2(C,n)=(C1=TCyEd(C),imag(C1)>0.5*pi?InvTCyEd(EachScale(C1-I*pi,1,n/0.5)+I*pi):imag(C1)>-0.5*pi?InvTCyEd(EachScale(C1,1,(1-n)/0.5)):InvTCyEd(EachScale(C1+I*pi,1,n/0.5)-I*pi))
+EaOblation_Remap2R(C,n)=(C1=CyEd(C),real(C1)>(1-n)*pi?InvCyEd(EachScale(C1-pi,0.5/n,1)+pi):real(C1)>-(1-n)*pi?InvCyEd(EachScale(C1,0.5/(1-n),1)):InvCyEd(EachScale(C1+pi,0.5/n,1)-pi))
+TEaOblation(C,n)=EaOblation_TRemapR2(EaOblation_Remap2R(C,n),n)
+#plot [0:1]imag(Hoge(I*x*pi*2/(2+pi)))-x*2
+#fit [x=0:1] imag(Hoge(I*(x*0.5-0.5+1)*pi*2/(2+pi)))-(x*0.5-0.5+1)*2 '0to1-0-1.dat' using 1:2 via a1,a2,a3,a4,a5,a6,a7,a8
+#pi-(pi-1.534268/(2-(1/a1)))/a1
+CriticalCircularEa_Test1(C)=(iota=pi/(2+pi),a1=1.1138,a2=1.08237,a3=1.07127,a4=1.06021,a5=1.05384,a6=1.04878,a7=1.0483,a8=1.07467,kappa=(2-a1)*(2-(1/a1))*(2-a2)*(2-(1/a2))*(2-a3)*(2-(1/a3))*(2-a4)*(2-(1/a4))*(2-a5)*(2-(1/a5))*(2-a6)*(2-(1/a6))*(2-a7)*(2-(1/a7))*(2-a8)*(2-(1/a8)),C1=EaOblation(C,iota),abs(real(C1))*0.5*kappa/(1-iota)>=pi?CircularHammer(C1):CircularHammer(EachScale( TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation(TEaOblation( EachScale(C1,0.5*kappa/(1-iota),1) ,0.5/a1),0.5/a2),0.5/a3),0.5/a4),0.5/a5),0.5/a6),0.5/a7),0.5/a8),0.5*a8),0.5*a7),0.5*a6),0.5*a5),0.5*a4),0.5*a3),0.5*a2),0.5*a1) ,(1-iota)/0.5/kappa,1) ))
+PCyEd(C)=(lam=real(C),phi=imag(C),B=-cos(phi)*cos(lam),(atan2(sin(lam),tan(phi))+I*asin(B)))
+InvPCyEd(xy)=(x=real(xy),y=imag(xy),phi=asin(cos(y)*cos(x)),lam=atan2(sin(x),-tan(y)),lam+I*phi)
+EaOblation_QRemapR2(C,n)=(C1=PCyEd(C),signl=(real(C1)>pi/2?+1:real(C1)>-pi/2?0:-1),InvPCyEd(EachScale(PCyEd(EaOblation_RemapR2(InvPCyEd(EachScale(C1-pi/2*signl,2,1)),n)),0.5,1)+pi/2*signl))
+DQEaOblation(C,n)=EaOblation_QRemapR2(EaOblation_TRemap2R(C,n),n)
+EaOblation_QRemap2R(C,n)=(C1=PCyEd(C),signl=(real(C1)>pi/2?+1:real(C1)>-pi/2?0:-1),InvPCyEd(EachScale(PCyEd(EaOblation_RemapR2(InvPCyEd(EachScale(C1-pi/2*signl,2,1)),n)),0.5,1)+pi/2*signl))
+DREaOblation(C,n)=(m=(n>0.5?(n+0.5)/2:(n+0.5)/2),EaOblation_RemapR2(EaOblation_QRemap2R(EaOblation_QRemapR2(EaOblation_TRemap2R(C,n),n),m),m))
 
 
 #Baseball projection, alpha version
