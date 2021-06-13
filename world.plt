@@ -337,6 +337,33 @@ EaOblation_QRemapR2(C,n)=(C1=PCyEd(C),signl=(real(C1)>pi/2?+1:real(C1)>-pi/2?0:-
 DQEaOblation(C,n)=EaOblation_QRemapR2(EaOblation_TRemap2R(C,n),n)
 EaOblation_QRemap2R(C,n)=(C1=PCyEd(C),signl=(real(C1)>pi/2?+1:real(C1)>-pi/2?0:-1),InvPCyEd(EachScale(PCyEd(EaOblation_RemapR2(InvPCyEd(EachScale(C1-pi/2*signl,2,1)),n)),0.5,1)+pi/2*signl))
 DREaOblation(C,n)=(m=(n>0.5?(n+0.5)/2:(n+0.5)/2),EaOblation_RemapR2(EaOblation_QRemap2R(EaOblation_QRemapR2(EaOblation_TRemap2R(C,n),n),m),m))
+#
+#TwoCurlyHemisphere
+CurlyCurve(t,amp)=InvMercator(t+I*cos(t*2)*amp)
+#course A: minimum curvature, nearest to Antarctica, pass through the east side of Tenerife.
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.226),-12*RPD,13*RPD,97*RPD)),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-97*RPD,167*RPD,12*RPD)),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-97*RPD,167*RPD,12*RPD)),real(xy)):(imag(xy)) w l, '+' using (xy=-NAzEa(Eulerzyz(Eulerzyz(CurlyCurve(t,0.226),-12*RPD,13*RPD,97*RPD),-97*RPD,167*RPD,12*RPD)),real(xy)):(imag(xy)) w l
+#course B: pass through the west side of Tenerife and La Gomera.
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.232),-11.5*RPD,13.5*RPD,97.5*RPD)),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-97.5*RPD,167.5*RPD,11.5*RPD)),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-97.5*RPD,167.5*RPD,11.5*RPD)),real(xy)):(imag(xy)) w l, '+' using (xy=-NAzEa(Eulerzyz(Eulerzyz(CurlyCurve(t,0.232),-11.5*RPD,13.5*RPD,97.5*RPD),-97.5*RPD,167.5*RPD,11.5*RPD)),real(xy)):(imag(xy)) w l
+#course C: pass through between Viti Levu and Yasawa Islands. (need to check about Mamanuca)
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.254),-10.5*RPD,14.5*RPD,97.5*RPD)),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-97.5*RPD,165.5*RPD,10.5*RPD)),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-97.5*RPD,165.5*RPD,10.5*RPD)),real(xy)):(imag(xy)) w l, '+' using (xy=-NAzEa(Eulerzyz(Eulerzyz(CurlyCurve(t,0.254),-10.5*RPD,14.5*RPD,97.5*RPD),-97.5*RPD,165.5*RPD,10.5*RPD)),real(xy)):(imag(xy)) w l
+#course D: pass through Koro Sea and the west side of Yacata Island.
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.268),-8.5*RPD,15.0*RPD,96.0*RPD)),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-96.0*RPD,165.0*RPD,8.5*RPD)),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-96.0*RPD,165.0*RPD,8.5*RPD)),real(xy)):(imag(xy)) w l, '+' using (xy=-NAzEa(Eulerzyz(Eulerzyz(CurlyCurve(t,0.268),-8.5*RPD,15.0*RPD,96.0*RPD),-96.0*RPD,165.0*RPD,8.5*RPD)),real(xy)):(imag(xy)) w l
+#course E: pass through between Ogea Lev and Vatoa.
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.300),-7.0*RPD,16.0*RPD,95.0*RPD)),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-95.0*RPD,164.0*RPD,7.0*RPD)),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-95.0*RPD,164.0*RPD,7.0*RPD)),real(xy)):(imag(xy)) w l, '+' using (xy=-NAzEa(Eulerzyz(Eulerzyz(CurlyCurve(t,0.300),-7.0*RPD,16.0*RPD,95.0*RPD),-95.0*RPD,164.0*RPD,7.0*RPD)),real(xy)):(imag(xy)) w l
+#course F:
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.302),-7.0*RPD,16.5*RPD,95.5*RPD)),real(xy)):(imag(xy)) w l
+#
+N2E(C)=InvEStereo(NStereo(C))
+OnEastCurlyHemisphereA(C)=imag(Mercator(Eulerzyz(C,-97*RPD,167*RPD,12*RPD)))>0.226*cos(2*real(Eulerzyz(C,-97*RPD,167*RPD,12*RPD)))
+TwoCurlyHemisphereA(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),OnEastCurlyHemisphereA(C)?EachScale(EAzEa(EachScale(N2E(Eulerzyz(C,-97*RPD,167*RPD,-168*RPD)),gamma,1)),1/gamma,1)+EAzEa(pi/2+imag(CurlyCurve(0,0.226))):EachScale(EAzEa(EachScale(N2E(Eulerzyz(C,-97*RPD,-13*RPD,-12*RPD+pi/2)),gamma,1)),1/gamma,1)*I-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
+#plot '+' using (C=Eulerzyz(CurlyCurve(t+pi/2,0.226)+(t<0?-1e-6*I:1e-6*I),-12*RPD,13*RPD,97*RPD),xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l
+OnEastCurlyHemisphereE(C)=imag(Mercator(Eulerzyz(C,-95*RPD,164*RPD,7*RPD)))>0.300*cos(2*real(Eulerzyz(C,-95*RPD,164*RPD,7*RPD)))
+TwoCurlyHemisphereE(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.300)))/(pi/2+imag(CurlyCurve(0,0.300))),OnEastCurlyHemisphereE(C)?EachScale(EAzEa(EachScale(N2E(Eulerzyz(C,-95*RPD,164*RPD,-173*RPD)),gamma,1)),1/gamma,1)+EAzEa(pi/2-imag(CurlyCurve(0,0.300)))/gamma:EachScale(EAzEa(EachScale(N2E(Eulerzyz(C,-95*RPD,-16*RPD,-7*RPD+pi/2)),gamma,1)),1/gamma,1)*I-EAzEa(pi/2-imag(CurlyCurve(0,0.300))))
 
 
 #Baseball projection, alpha version
@@ -382,6 +409,7 @@ BaseballCurve(t)=NBaseballStrip(InvNStereo(NS_BaseballCurve(t)))
 #plot t,real(BBCheckStitch2(t,1.220,0.944)), t,imag(BBCheckStitch2(t,1.220,0.944)), t,BBCheckStitch1(x,1.220)
 #é ëúÇ©ÇÁäOå`ÇãÅÇﬂÇƒÇ›ÇÈ
 #NS_BaseballCurve(t)=(z=exp(I*t),2*z*exp(I*imag(z**4*r2)+real(z**2*r1+z**6*r3+z**10*r4+z**14*r5)))
+
 
 #à»â∫ñ¢êÆóù
 
