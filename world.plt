@@ -340,6 +340,9 @@ DREaOblation(C,n)=(m=(n>0.5?(n+0.5)/2:(n+0.5)/2),EaOblation_RemapR2(EaOblation_Q
 #
 #TwoCurlyHemisphere
 CurlyCurve(t,amp)=InvMercator(t+I*cos(t*2)*amp)
+#set parametric
+#set trange [-pi:pi]
+#set samples 3601
 #course A: minimum curvature, nearest to Antarctica, pass through the east side of Tenerife.
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.226),-12*RPD,13*RPD,97*RPD)),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-97*RPD,167*RPD,12*RPD)),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-97*RPD,167*RPD,12*RPD)),real(xy)):(imag(xy)) w l, '+' using (xy=-NAzEa(Eulerzyz(Eulerzyz(CurlyCurve(t,0.226),-12*RPD,13*RPD,97*RPD),-97*RPD,167*RPD,12*RPD)),real(xy)):(imag(xy)) w l
@@ -359,11 +362,14 @@ CurlyCurve(t,amp)=InvMercator(t+I*cos(t*2)*amp)
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.302),-7.0*RPD,16.5*RPD,95.5*RPD)),real(xy)):(imag(xy)) w l
 #
 N2E(C)=InvEStereo(NStereo(C))
-OnEastCurlyHemisphereA(C)=imag(Mercator(Eulerzyz(C,-97*RPD,167*RPD,12*RPD)))>0.226*cos(2*real(Eulerzyz(C,-97*RPD,167*RPD,12*RPD)))
-TwoCurlyHemisphereA(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),OnEastCurlyHemisphereA(C)?EachScale(EAzEa(EachScale(N2E(Eulerzyz(C,-97*RPD,167*RPD,-168*RPD)),gamma,1)),1/gamma,1)+EAzEa(pi/2+imag(CurlyCurve(0,0.226))):EachScale(EAzEa(EachScale(N2E(Eulerzyz(C,-97*RPD,-13*RPD,-12*RPD+pi/2)),gamma,1)),1/gamma,1)*I-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
+ECurlyHemisphere(C,amp)=(gamma=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(CurlyCurve(0,amp))),EachScale(EAzEa(EachScale(C,gamma,1)),1/gamma,1))
+OnEastCurlyHemisphere(C,amp)=imag(Mercator(C))>amp*cos(2*real(C))
+TwoCurlyHemisphereA(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),C1=Eulerzyz(C,-97*RPD,167*RPD,-168*RPD),OnEastCurlyHemisphere(C1,0.226)?ECurlyHemisphere(N2E(C1),0.226)+EAzEa(pi/2-imag(CurlyCurve(0,0.226)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.226)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
+TwoCurlyHemisphereA_NU(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),C1=Eulerzyz(C,-97*RPD,167*RPD,-168*RPD),OnEastCurlyHemisphere(C1,0.226)?ECurlyHemisphere(N2E(C1),0.226)*exp(I*12*RPD*gamma)+EAzEa(pi/2-imag(CurlyCurve(0,0.226)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.226)*-I*exp(I*-12*RPD)-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
+#set trange [-2*pi:2*pi]
+#set samples 3601
 #plot '+' using (C=Eulerzyz(CurlyCurve(t+pi/2,0.226)+(t<0?-1e-6*I:1e-6*I),-12*RPD,13*RPD,97*RPD),xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l
-OnEastCurlyHemisphereE(C)=imag(Mercator(Eulerzyz(C,-95*RPD,164*RPD,7*RPD)))>0.300*cos(2*real(Eulerzyz(C,-95*RPD,164*RPD,7*RPD)))
-TwoCurlyHemisphereE(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.300)))/(pi/2+imag(CurlyCurve(0,0.300))),OnEastCurlyHemisphereE(C)?EachScale(EAzEa(EachScale(N2E(Eulerzyz(C,-95*RPD,164*RPD,-173*RPD)),gamma,1)),1/gamma,1)+EAzEa(pi/2-imag(CurlyCurve(0,0.300)))/gamma:EachScale(EAzEa(EachScale(N2E(Eulerzyz(C,-95*RPD,-16*RPD,-7*RPD+pi/2)),gamma,1)),1/gamma,1)*I-EAzEa(pi/2-imag(CurlyCurve(0,0.300))))
+TwoCurlyHemisphereE(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.300)))/(pi/2+imag(CurlyCurve(0,0.300))),C1=Eulerzyz(C,-95*RPD,164*RPD,-173*RPD),OnEastCurlyHemisphere(C1,0.300)?ECurlyHemisphere(N2E(C1),0.300)+EAzEa(pi/2-imag(CurlyCurve(0,0.300)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.300)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.300))))
 
 
 #Baseball projection, alpha version
