@@ -64,12 +64,14 @@ Equirectangular(C,phi1)=EachScale(C,1.0,1.0/cos(phi1))
 #Mercator(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(asinh(tan(imag(C))))
 #asinh(x) is bad at x<0
 Mercator(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(sgn(imag(C))*asinh(tan(abs(imag(C)))))
+CentralCy(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(tan(imag(C)))
 LambertCyEa(C)=real(C)+I*(sin(imag(C)))
 GallPeters(C)=EachScale(LambertCyEa(C),2**-0.5,2**0.5)
 MillerCy(C)=EachScale(Mercator(EachScale(C,1,0.8)),1,1.25)
 InvCyEd(xy)=xy
 #InvMercator(xy)=real(xy)+I*(atan(exp(imag(xy)))*2-pi/2)
 InvMercator(xy)=real(xy)+I*(atan(sinh(imag(xy))))
+InvCentralCy(xy)=real(xy)+I*(atan(imag(xy)))
 InvLambertCyEa(xy)=real(xy)+I*(asin(imag(xy)))
 TCyEd(C)=(lam=real(C),phi=imag(C),B=cos(phi)*sin(lam),asin(B)+I*(atan2(tan(phi),cos(lam))))
 TMercator(C)=(lam=real(C),phi=imag(C),B=cos(phi)*sin(lam),B*B==1?NaN:0.5*log((1+B)/(1-B))+I*(atan2(tan(phi),cos(lam))))
@@ -80,10 +82,12 @@ InvTCyEd(xy)=(x=real(xy),y=imag(xy),phi=asin(sin(y)*cos(x)),lam=atan2(tan(x),cos
 #ï˚à ê}ñ@ Azimuthal projections
 NOrtho(C)=(lam=real(C),phi=imag(C),rho=cos(phi),phi<0?NaN:(rho*sin(lam))+I*(-rho*cos(lam)))
 NStereo(C)=(lam=real(C),phi=imag(C),rho=2*tan(pi/4-phi/2),sin(phi)<-0.54-0.46?NaN:(rho*sin(lam))+I*(-rho*cos(lam)))
+NGnomo(C)=(lam=real(C),phi=imag(C),rho=1/tan(phi),phi<=0?NaN:(rho*sin(lam))+I*(-rho*cos(lam)))
 NAzEd(C)=(lam=real(C),phi=imag(C),rho=pi/2-phi,(rho*sin(lam))+I*(-rho*cos(lam)))
 NAzEa(C)=(lam=real(C),phi=imag(C),rho=2*sin(pi/4-phi/2),(rho*sin(lam))+I*(-rho*cos(lam)))
 EOrtho(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=1,cosz<0?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 EStereo(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=(cosz<=-1?0:2/(1+cosz)),cosz<=-0.88-0.12?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
+EGnomo(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),cosz<=0?NaN:(tan(lam))+I*(tan(phi)/cos(lam)))
 EAzEd(C)=(lam=real(C),phi=imag(C),z=acos(cos(phi)*cos(lam)),K=(z==0?1:z/sin(z)),z>=pi?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 EAzEa(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=(2/(1+cosz))**0.5,cosz<=-1?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 SStereo(C)=conj(NStereo(conj(C)))
@@ -358,8 +362,8 @@ CurlyCurve(t,amp)=InvMercator(t+I*cos(t*2)*amp)
 #course E: pass through between Ogea Lev and Vatoa.
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.300),-7.0*RPD,16.0*RPD,95.0*RPD)),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-95.0*RPD,164.0*RPD,7.0*RPD)),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=-NAzEa(Eulerzyz(C,-95.0*RPD,164.0*RPD,7.0*RPD)),real(xy)):(imag(xy)) w l, '+' using (xy=-NAzEa(Eulerzyz(Eulerzyz(CurlyCurve(t,0.300),-7.0*RPD,16.0*RPD,95.0*RPD),-95.0*RPD,164.0*RPD,7.0*RPD)),real(xy)):(imag(xy)) w l
-#course F:
-#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.302),-7.0*RPD,16.5*RPD,95.5*RPD)),real(xy)):(imag(xy)) w l
+#course F: a bit tilted.
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.263),-3.0*RPD,16.0*RPD,93.0*RPD)),real(xy)):(imag(xy)) w l
 #course G: cut North Island, New Zealand.
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.296),-0.0*RPD,17.5*RPD,91.0*RPD)),real(xy)):(imag(xy)) w l
 #course H: cut Iceland.
@@ -368,6 +372,8 @@ CurlyCurve(t,amp)=InvMercator(t+I*cos(t*2)*amp)
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.536),-0.0*RPD,29.0*RPD,96.0*RPD)),real(xy)):(imag(xy)) w l
 #course I: cut Chukchi Peninsula, Russia.
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.250),-0.0*RPD,14.5*RPD,94.0*RPD)),real(xy)):(imag(xy)) w l
+#course J: cut Greenland.
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.165),-0.0*RPD,15.0*RPD,97.0*RPD)),real(xy)):(imag(xy)) w l
 N2E(C)=InvEStereo(NStereo(C))
 ECurlyHemisphere(C,amp)=(gamma=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(CurlyCurve(0,amp))),EachScale(EAzEa(EachScale(C,gamma,1)),1/gamma,1))
 OnEastCurlyHemisphere(C,amp)=imag(Mercator(C))>amp*cos(2*real(C))
@@ -375,8 +381,9 @@ TwoCurlyHemisphereA(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyC
 TwoCurlyHemisphereA_NU(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),C1=Eulerzyz(C,-97*RPD,167*RPD,-168*RPD),OnEastCurlyHemisphere(C1,0.226)?ECurlyHemisphere(N2E(C1),0.226)*exp(I*12*RPD*gamma)+EAzEa(pi/2-imag(CurlyCurve(0,0.226)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.226)*-I*exp(I*-12*RPD)-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
 #set trange [-2*pi:2*pi]
 #set samples 3601
-#plot '+' using (C=Eulerzyz(CurlyCurve(t+pi/2,0.226)+(t<0?-1e-6*I:1e-6*I),-12*RPD,13*RPD,97*RPD),xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l
+#plot '+' using (C=Eulerzyz(CurlyCurve(t+pi/2,0.226)+(t<0?-1e-6*I:1e-6*I),-12*RPD,13*RPD,97*RPD),xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l, '+' using (C=t,xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l
 TwoCurlyHemisphereE(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.300)))/(pi/2+imag(CurlyCurve(0,0.300))),C1=Eulerzyz(C,-95*RPD,164*RPD,-173*RPD),OnEastCurlyHemisphere(C1,0.300)?ECurlyHemisphere(N2E(C1),0.300)+EAzEa(pi/2-imag(CurlyCurve(0,0.300)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.300)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.300))))
+TwoCurlyHemisphereF(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.263)))/(pi/2+imag(CurlyCurve(0,0.263))),C1=Eulerzyz(C,-93*RPD,164*RPD,-177*RPD),OnEastCurlyHemisphere(C1,0.263)?ECurlyHemisphere(N2E(C1),0.263)+EAzEa(pi/2-imag(CurlyCurve(0,0.263)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.263)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.263))))
 TwoCurlyHemisphereG(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.296)))/(pi/2+imag(CurlyCurve(0,0.296))),C1=Eulerzyz(C,-91*RPD,162.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.296)?ECurlyHemisphere(N2E(C1),0.296)+EAzEa(pi/2-imag(CurlyCurve(0,0.296)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.296)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.296))))
 TwoCurlyHemisphereH(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.376)))/(pi/2+imag(CurlyCurve(0,0.376))),C1=Eulerzyz(C,-93*RPD,158.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.376)?ECurlyHemisphere(N2E(C1),0.376)+EAzEa(pi/2-imag(CurlyCurve(0,0.376)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.376)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.376))))
 TwoCurlyHemisphereI(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.250)))/(pi/2+imag(CurlyCurve(0,0.250))),C1=Eulerzyz(C,-94*RPD,165.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.250)?ECurlyHemisphere(N2E(C1),0.250)+EAzEa(pi/2-imag(CurlyCurve(0,0.250)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.250)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.250))))
