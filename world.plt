@@ -64,10 +64,13 @@ Equirectangular(C,phi1)=EachScale(C,1.0,1.0/cos(phi1))
 #Mercator(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(asinh(tan(imag(C))))
 #asinh(x) is bad at x<0
 Mercator(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(sgn(imag(C))*asinh(tan(abs(imag(C)))))
+#Mercator(C)=2*atan(EStereo(C)/2)
 CentralCy(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(tan(imag(C)))
 LambertCyEa(C)=real(C)+I*(sin(imag(C)))
 GallPeters(C)=EachScale(LambertCyEa(C),2**-0.5,2**0.5)
 MillerCy(C)=EachScale(Mercator(EachScale(C,1,0.8)),1,1.25)
+BraunStereo(C)=real(C)+I*(2*tan(imag(C)/2))
+#BraunStereo(C)=LambertCyEa(InvMercator(Mercator(C)*0.5))*2
 InvCyEd(xy)=xy
 #InvMercator(xy)=real(xy)+I*(atan(exp(imag(xy)))*2-pi/2)
 InvMercator(xy)=real(xy)+I*(atan(sinh(imag(xy))))
@@ -85,9 +88,9 @@ NStereo(C)=(lam=real(C),phi=imag(C),rho=2*tan(pi/4-phi/2),sin(phi)<-0.54-0.46?Na
 NGnomo(C)=(lam=real(C),phi=imag(C),rho=1/tan(phi),phi<=0?NaN:(rho*sin(lam))+I*(-rho*cos(lam)))
 NAzEd(C)=(lam=real(C),phi=imag(C),rho=pi/2-phi,(rho*sin(lam))+I*(-rho*cos(lam)))
 NAzEa(C)=(lam=real(C),phi=imag(C),rho=2*sin(pi/4-phi/2),(rho*sin(lam))+I*(-rho*cos(lam)))
-EOrtho(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=1,cosz<0?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
+EOrtho(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),cosz<0?NaN:(cos(phi)*sin(lam))+I*(sin(phi)))  # K=1
 EStereo(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=(cosz<=-1?0:2/(1+cosz)),cosz<=-0.88-0.12?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
-EGnomo(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),cosz<=0?NaN:(tan(lam))+I*(tan(phi)/cos(lam)))
+EGnomo(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),cosz<=0?NaN:(tan(lam))+I*(tan(phi)/cos(lam)))  # K=1/cosz
 EAzEd(C)=(lam=real(C),phi=imag(C),z=acos(cos(phi)*cos(lam)),K=(z==0?1:z/sin(z)),z>=pi?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 EAzEa(C)=(lam=real(C),phi=imag(C),cosz=cos(phi)*cos(lam),K=(2/(1+cosz))**0.5,cosz<=-1?NaN:(K*cos(phi)*sin(lam))+I*(K*sin(phi)))
 SStereo(C)=conj(NStereo(conj(C)))
@@ -152,6 +155,8 @@ Littrow(C)=(lam=real(C),phi=imag(C),cos(phi)*cos(lam)<=0?NaN:sin(lam)/cos(phi)+I
 #pp1453 says that Littrow is one of configuration of the generalized Lagrange
 #but no explanation why it becomes retroazimuthal
 #Littrow(C)=(z=EStereo(C)/2,abs(z)>=1?NaN:z/(1+z**2)*2)
+#Littrow(C)=(z=EStereo(C)/2,abs(z)>=1?NaN:sin(2*atan(z)))
+#Littrow(C)=(z=EStereo(C)/2,abs(z)>=1?NaN:tanh(2*atanh(z)))
 LittrowNHemisphere(C)=(lam=real(C),phi=imag(C),sin(phi)<=0?NaN:sin(lam)/cos(phi)+I*(tan(phi)*cos(lam)))
 LittrowSHemisphere(C)=(lam=real(C),phi=imag(C),sin(phi)>=0?NaN:sin(lam)/cos(phi)+I*(tan(phi)*cos(lam)))
 CraigRetroazimuthal(C,phi1)=(lam=real(C),phi=imag(C),lam==0?I*(sin(phi)-cos(phi)*tan(phi1)):(lam-0)+I*(lam-0)*(sin(phi)*cos(lam-0)-cos(phi)*tan(phi1))/sin(lam-0))
@@ -216,6 +221,19 @@ Briesemeister(C)=EBriesemeister(Eulerzyz(C,10*RPD,135*RPD,0))
 #Using complex polynomial, or mixing a few projections
 COblation(C,K,Q)=K*(C+Q/12.0*C**3)
 MillerOblatedStereo(C)=COblation(NStereo(Eulerzyz(C,20*RPD,18*RPD,0)),0.9245,0.2522)
+#pp1453 eqs. 146, 147, 148, 149.
+MillerOblateG(C,da,db)=(Ta=(1-cos(da))/(1+cos(da)),Tb=(1-cos(db))/(1+cos(db)),Q=(Tb-Ta)/(Ta+Ta**2+Tb+Tb**2),COblation(C,1/((1+Ta)*(1+Q*Ta))**0.5,Q))
+MillerOblateG_SC(C,da,db)=(Ta=(1-cos(da))/(1+cos(da)),Tb=(1-cos(db))/(1+cos(db)),Q=(Tb-Ta)/(Ta+Ta**2+Tb+Tb**2),COblation(C,1,Q))
+#Ta=tan(da/2)**2, Tb=tan(db/2)**2
+#EStereo(da)=2*tan(da/2), EStereo(db)=2*tan(db/2)
+#d COblation(C)/d C = K*(1+Q/4.0*C**2)
+#d EStereo(da)/d(da) = 1/cos(da/2)**2 = 1 + tan(da/2)**2
+#d COblation(EStereo(C),K=1,Q)/d C = (1 + tan(C/2)**2) * (1+Q/4.0*EStereo(C)**2) = (1 + tan(C/2)**2) * (1+Q*tan(C/2)**2)
+#(1 + tan(da/2)**2) * (1+Q*tan(da/2)**2) = (1 + tan(db/2)**2) * (1-Q*tan(db/2)**2)
+#(1 + Ta) * (1+Q*Ta) = (1 + Tb) * (1-Q*Tb)
+#(1 + Ta) + Q*(Ta + Ta**2) = (1 + Tb) - Q*(Tb + Tb**2)
+#Q*(Ta + Ta**2 + Tb + Tb**2) = Tb - Ta
+#Q = (Tb - Ta)/(Ta + Ta**2 + Tb + Tb**2)
 #https://www.researchgate.net/publication/315860317_Combining_World_Map_Projections
 ArdenCloseCy(C)=(abs(imag(C))>85*RPD?1/0:(Mercator(C)+LambertCyEa(C))/2)
 #https://web.archive.org/web/20181004024945/http://www.progonos.com/furuti/MapProj/Normal/ProjOth/projOth.html
@@ -252,6 +270,7 @@ StereoEa(C)=(lam=real(C),phi=imag(C),(cos(2*Newton_MollTh(0,phi))+1+I*sin(2*Newt
 #Combined
 EAzEaOval(C)=(lam=real(C),phi=imag(C),abs(lam)<=pi/2?EAzEa(C):((lam-pi/2*sgn(lam))*0.5+cos(phi)*sgn(lam))*2**0.5+I*sin(phi)*2**0.5)
 EAzEaWiechel(C)=(lam=real(C),phi=imag(C),abs(lam)<=pi/2?EAzEa(C):lam>=0?(phi>=0?NWiechel(lam*0.5+pi/4+I*phi)+I:conj(NWiechel(lam*0.5+pi/4-I*phi))-I)*2**0.5:(phi>=0?-conj(NWiechel(-lam*0.5+pi/4+I*phi))+I:-NWiechel(-lam*0.5+pi/4-I*phi)-I)*2**0.5)
+EAzEdCapsule(C)=(abs(real(C))<=pi/2?ECyEd(C):EAzEd(C-pi/2*sgn(real(C)))+pi/2*sgn(real(C)))
 #
 #Directional path offset
 #Invphi_Hammer(phi,lam,y)=abs(y-imag(Hammer(lam+I*phi)))<1e-12?phi:Invphi_Hammer(phi+y-imag(Hammer(lam+I*phi)),lam,y)
@@ -375,18 +394,25 @@ CurlyCurve(t,amp)=InvMercator(t+I*cos(t*2)*amp)
 #course J: cut Greenland.
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.165),-0.0*RPD,15.0*RPD,97.0*RPD)),real(xy)):(imag(xy)) w l
 N2E(C)=InvEStereo(NStereo(C))
-ECurlyHemisphere(C,amp)=(gamma=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(CurlyCurve(0,amp))),EachScale(EAzEa(EachScale(C,gamma,1)),1/gamma,1))
+ECurlyHemisphere_Ham(C,amp)=(gam=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(CurlyCurve(0,amp))),EachScale(EAzEa(EachScale(C,gam,1)),1/gam,1))
 OnEastCurlyHemisphere(C,amp)=imag(Mercator(C))>amp*cos(2*real(C))
-TwoCurlyHemisphereA(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),C1=Eulerzyz(C,-97*RPD,167*RPD,-168*RPD),OnEastCurlyHemisphere(C1,0.226)?ECurlyHemisphere(N2E(C1),0.226)+EAzEa(pi/2-imag(CurlyCurve(0,0.226)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.226)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
-TwoCurlyHemisphereA_NU(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),C1=Eulerzyz(C,-97*RPD,167*RPD,-168*RPD),OnEastCurlyHemisphere(C1,0.226)?ECurlyHemisphere(N2E(C1),0.226)*exp(I*12*RPD*gamma)+EAzEa(pi/2-imag(CurlyCurve(0,0.226)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.226)*-I*exp(I*-12*RPD)-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
+TwoCurlyHemisphereA(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),C1=Eulerzyz(C,-97*RPD,167*RPD,-168*RPD),OnEastCurlyHemisphere(C1,0.226)?ECurlyHemisphere_Ham(N2E(C1),0.226)+EAzEa(pi/2-imag(CurlyCurve(0,0.226)))/gamma:ECurlyHemisphere_Ham(N2E(-C1+pi/2),0.226)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
+TwoCurlyHemisphereA_NU(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),C1=Eulerzyz(C,-97*RPD,167*RPD,-168*RPD),OnEastCurlyHemisphere(C1,0.226)?ECurlyHemisphere_Ham(N2E(C1),0.226)*exp(I*12*RPD*gamma)+EAzEa(pi/2-imag(CurlyCurve(0,0.226)))/gamma:ECurlyHemisphere_Ham(N2E(-C1+pi/2),0.226)*-I*exp(I*-12*RPD)-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
 #set trange [-2*pi:2*pi]
 #set samples 3601
 #plot '+' using (C=Eulerzyz(CurlyCurve(t+pi/2,0.226)+(t<0?-1e-6*I:1e-6*I),-12*RPD,13*RPD,97*RPD),xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l, '+' using (C=t,xy=TwoCurlyHemisphereA(C),real(xy)):(imag(xy)) w l
-TwoCurlyHemisphereE(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.300)))/(pi/2+imag(CurlyCurve(0,0.300))),C1=Eulerzyz(C,-95*RPD,164*RPD,-173*RPD),OnEastCurlyHemisphere(C1,0.300)?ECurlyHemisphere(N2E(C1),0.300)+EAzEa(pi/2-imag(CurlyCurve(0,0.300)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.300)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.300))))
-TwoCurlyHemisphereF(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.263)))/(pi/2+imag(CurlyCurve(0,0.263))),C1=Eulerzyz(C,-93*RPD,164*RPD,-177*RPD),OnEastCurlyHemisphere(C1,0.263)?ECurlyHemisphere(N2E(C1),0.263)+EAzEa(pi/2-imag(CurlyCurve(0,0.263)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.263)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.263))))
-TwoCurlyHemisphereG(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.296)))/(pi/2+imag(CurlyCurve(0,0.296))),C1=Eulerzyz(C,-91*RPD,162.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.296)?ECurlyHemisphere(N2E(C1),0.296)+EAzEa(pi/2-imag(CurlyCurve(0,0.296)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.296)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.296))))
-TwoCurlyHemisphereH(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.376)))/(pi/2+imag(CurlyCurve(0,0.376))),C1=Eulerzyz(C,-93*RPD,158.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.376)?ECurlyHemisphere(N2E(C1),0.376)+EAzEa(pi/2-imag(CurlyCurve(0,0.376)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.376)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.376))))
-TwoCurlyHemisphereI(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.250)))/(pi/2+imag(CurlyCurve(0,0.250))),C1=Eulerzyz(C,-94*RPD,165.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.250)?ECurlyHemisphere(N2E(C1),0.250)+EAzEa(pi/2-imag(CurlyCurve(0,0.250)))/gamma:ECurlyHemisphere(N2E(-C1+pi/2),0.250)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.250))))
+TwoCurlyHemisphereE(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.300)))/(pi/2+imag(CurlyCurve(0,0.300))),C1=Eulerzyz(C,-95*RPD,164*RPD,-173*RPD),OnEastCurlyHemisphere(C1,0.300)?ECurlyHemisphere_Ham(N2E(C1),0.300)+EAzEa(pi/2-imag(CurlyCurve(0,0.300)))/gamma:ECurlyHemisphere_Ham(N2E(-C1+pi/2),0.300)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.300))))
+TwoCurlyHemisphereF(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.263)))/(pi/2+imag(CurlyCurve(0,0.263))),C1=Eulerzyz(C,-93*RPD,164*RPD,-177*RPD),OnEastCurlyHemisphere(C1,0.263)?ECurlyHemisphere_Ham(N2E(C1),0.263)+EAzEa(pi/2-imag(CurlyCurve(0,0.263)))/gamma:ECurlyHemisphere_Ham(N2E(-C1+pi/2),0.263)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.263))))
+TwoCurlyHemisphereG(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.296)))/(pi/2+imag(CurlyCurve(0,0.296))),C1=Eulerzyz(C,-91*RPD,162.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.296)?ECurlyHemisphere_Ham(N2E(C1),0.296)+EAzEa(pi/2-imag(CurlyCurve(0,0.296)))/gamma:ECurlyHemisphere_Ham(N2E(-C1+pi/2),0.296)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.296))))
+TwoCurlyHemisphereH(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.376)))/(pi/2+imag(CurlyCurve(0,0.376))),C1=Eulerzyz(C,-93*RPD,158.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.376)?ECurlyHemisphere_Ham(N2E(C1),0.376)+EAzEa(pi/2-imag(CurlyCurve(0,0.376)))/gamma:ECurlyHemisphere_Ham(N2E(-C1+pi/2),0.376)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.376))))
+TwoCurlyHemisphereI(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.250)))/(pi/2+imag(CurlyCurve(0,0.250))),C1=Eulerzyz(C,-94*RPD,165.5*RPD,-180*RPD),OnEastCurlyHemisphere(C1,0.250)?ECurlyHemisphere_Ham(N2E(C1),0.250)+EAzEa(pi/2-imag(CurlyCurve(0,0.250)))/gamma:ECurlyHemisphere_Ham(N2E(-C1+pi/2),0.250)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.250))))
+#search for another projection, analytically controllable
+ECurlyHemisphere_Ait(C,amp)=(gam=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(CurlyCurve(0,amp))),EachScale(EAzEd(EachScale(C,gam,1)),1/gam,1))
+ECurlyHemisphere_PsS(C,amp)=(gam=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(CurlyCurve(0,amp))),EachScale(EStereo(EachScale(C,gam,1)),1/gam,1))
+ECurlyHemisphere_MOS(C,amp)=MillerOblateG_SC(EStereo(C),pi/2+imag(CurlyCurve(0,amp)),pi/2-imag(CurlyCurve(0,amp)))
+#
+#
+#
 
 
 #Baseball projection, alpha version
