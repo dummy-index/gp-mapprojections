@@ -270,7 +270,7 @@ StereoEa(C)=(lam=real(C),phi=imag(C),(cos(2*Newton_MollTh(0,phi))+1+I*sin(2*Newt
 #Combined
 EAzEaOval(C)=(lam=real(C),phi=imag(C),abs(lam)<=pi/2?EAzEa(C):((lam-pi/2*sgn(lam))*0.5+cos(phi)*sgn(lam))*2**0.5+I*sin(phi)*2**0.5)
 EAzEaWiechel(C)=(lam=real(C),phi=imag(C),abs(lam)<=pi/2?EAzEa(C):lam>=0?(phi>=0?NWiechel(lam*0.5+pi/4+I*phi)+I:conj(NWiechel(lam*0.5+pi/4-I*phi))-I)*2**0.5:(phi>=0?-conj(NWiechel(-lam*0.5+pi/4+I*phi))+I:-NWiechel(-lam*0.5+pi/4-I*phi)-I)*2**0.5)
-EAzEdCapsule(C)=(abs(real(C))<=pi/2?ECyEd(C):EAzEd(C-pi/2*sgn(real(C)))+pi/2*sgn(real(C)))
+EAzEdCapsule(C)=(abs(real(C))<=pi/2?CyEd(C):EAzEd(C-pi/2*sgn(real(C)))+pi/2*sgn(real(C)))
 #
 #Directional path offset
 #Invphi_Hammer(phi,lam,y)=abs(y-imag(Hammer(lam+I*phi)))<1e-12?phi:Invphi_Hammer(phi+y-imag(Hammer(lam+I*phi)),lam,y)
