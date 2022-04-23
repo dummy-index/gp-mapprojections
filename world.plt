@@ -143,7 +143,8 @@ NWiechel(C)=(lam=real(C),phi=imag(C),rho=1,(-rho*cos(lam)+sin(lam+phi))+I*(-rho*
 #Exercise: Prove that this projection is equal-area projection, in several ways.
 #memo https://commons.wikimedia.org/wiki/File:Tsubaki_crescent_shaped_plastic_chain.png
 WiechelPseudoconic(C,phi1)=(lam=real(C),phi=imag(C),n=sin(phi1),rho=(n==0?0:1/n),n==0?lam+cos(phi)-1+I*sin(phi):(rho*sin(n*lam-phi1)+cos(n*lam+phi-phi1))+I*(-rho*cos(n*lam-phi1)+sin(n*lam+phi-phi1)+tan(pi/2-phi1)))
-#
+#https://www.mapthematics.com/ProjectionsList.php?Projection=214
+NIsoperimetricPseudoazimuthal(C)=(imag(C)<0?NaN:NWiechel(EachScale(C,1,2)-I*pi/2))
 Bacon(C)=(lam=real(C),phi=imag(C),y=pi/2*sin(phi),F=(lam==0?0:((pi/2)**2/abs(lam)+abs(lam))/2),lam==0?I*y:sgn(lam)*(abs(lam)-F+(F**2-y**2)**0.5)+I*y)
 Ortelius(C)=(lam=real(C),phi=imag(C),y=phi,F=(lam==0?0:((pi/2)**2/abs(lam)+abs(lam))/2),lam==0?I*y:abs(lam)<pi/2?sgn(lam)*(abs(lam)-F+(F**2-y**2)**0.5)+I*y:sgn(lam)*(abs(lam)-pi/2+((pi/2)**2-y**2)**0.5)+I*y)
 Nicolosi(C)=(lam=real(C),phi=imag(C),phi==0?lam:abs(lam)==pi/2?lam*cos(phi)+I*pi/2*sin(phi):(b=pi/2/lam-2*lam/pi,d=(1-(2*phi/pi)**2)/(sin(phi)-(2*phi/pi)),M=(b*sin(phi)/d-b/2)/(1+b**2/d**2),N=(d**2*sin(phi)/b**2+d/2)/(1+d**2/b**2),pi/2*(M+sgn(lam)*(M**2+cos(phi)**2/(1+b**2/d**2))**0.5)+I*pi/2*(N-sgn(phi*b*lam)*(N**2-(d**2*sin(phi)**2/b**2+d*sin(phi)-1)/(1+d**2/b**2))**0.5)))
@@ -258,6 +259,11 @@ LateralEd(C)=EachScale(LatTLat(EachScale(C,0.5,1)),2,1)
 RoundedMercator(C)=abs(imag(C))>pi/4?(signp=(imag(C)<0?-1:1),EachScale(EAzEdTwoHemisphere(EachScale(C-signp*I*pi/4,1,2)),1,0.5**0.5)+I*imag(Mercator(signp*I*pi/4))):Mercator(C)
 #SemicircularlyRoundedMercator(C)=abs(imag(C))>pi/4?(signp=(imag(C)<0?-1:1),EAzEdTwoHemisphere(InvMercator(Mercator(C)-signp*I*imag(Mercator(I*pi/4))))+I*imag(Mercator(signp*I*pi/4))):Mercator(C)
 
+#Wow!
+#https://www.mapthematics.com/forums/viewtopic.php?f=8&t=856
+#MiloDihedral
+#FalseMiloDihedral(C)=(C1=ApproxGuyou(C),InvApproxGuyou(real(C1))+I*InvApproxGuyou(imag(C1)))
+
 #自作 My own work
 #FalseCyEd(C)=real(C)+I*2/(1/imag(Mercator(C))+1/imag(LambertCyEa(C)))
 FalseMercator(C)=real(C)+I/(2/imag(C)-1/imag(LambertCyEa(C)))
@@ -266,6 +272,7 @@ TwoLeavesWerner(C)=(real(C)>=0?Werner(C-pi/2)*I:Werner(C+pi/2)/I)
 AugustTwice(C)=AugustEpicycloidal(InvEStereo(AugustEpicycloidal(C)*1.5))
 NoName1(C)=EStereo(InvEStereo(real(C)*4/pi)+I*(imag(C)+0.5*(cos(real(C)/1.5)-0.5)*sin(imag(C))*cos(imag(C))))*pi/4
 StereoEa(C)=(lam=real(C),phi=imag(C),(cos(2*Newton_MollTh(0,phi))+1+I*sin(2*Newton_MollTh(0,phi)))*sqrt(lam*2/pi+2))
+ESquashedStereo(C)=(C1=EStereo(C),InvEStereo(real(C1))+I*InvEStereo(imag(C1)))
 #
 #Combined
 EAzEaOval(C)=(lam=real(C),phi=imag(C),abs(lam)<=pi/2?EAzEa(C):((lam-pi/2*sgn(lam))*0.5+cos(phi)*sgn(lam))*2**0.5+I*sin(phi)*2**0.5)
@@ -292,6 +299,7 @@ HammerPeters(C,n)=(ymax=(n==0?2**0.5:sin(asin(sin(pi/4)*n)*2)/n),EachScale(HamCy
 #g(x)=real(ApproxQuincuncial((x+1)*pi/2)-1.3110287771460599)/real(ApproxQuincuncial((x+1)*pi/2)-ApproxQuincuncial((x+1)*pi/2+I*pi/2/10000))
 #within +-0.18 km
 ApproxQuincuncial(C)=(C1=ACN_Lagrange(C),C2=GeoMean(Lagrange(C),TLagrange(C)),z=GeoMean(C1,C2),z*1.461298+C1*-0.580510+C2*0.119212+z**5*0.00155830)
+ApproxGuyou(C)=(abs(real(C))>pi/2?NaN:ApproxQuincuncial(Eulerzyz(C,90*RPD,45*RPD,-90*RPD))*(1-I))
 #
 #ApproxEisenlohr(C)=(Q=-4.0/(2+2**3*r1/10+2**5*r2/100+2**7*r3/1000)**2,z=Lagrange(C)/I,z=COblation((z+z**3*r1/10+z**5*r2/100+z**7*r3/1000),1,Q),(z+z**3*r4/10)*I)
 #f(x)=abs(ApproxEisenlohr(pi+I*(x)*pi/2-I*0.1e-6)-ApproxEisenlohr(pi+I*(x)*pi/2-I*1.1e-6))*1e6
@@ -411,6 +419,23 @@ ECurlyHemisphere_Ait(C,amp)=(gam=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(Curly
 ECurlyHemisphere_PsS(C,amp)=(gam=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(CurlyCurve(0,amp))),EachScale(EStereo(EachScale(C,gam,1)),1/gam,1))
 ECurlyHemisphere_MOS(C,amp)=MillerOblateG_SC(EStereo(C),pi/2+imag(CurlyCurve(0,amp)),pi/2-imag(CurlyCurve(0,amp)))
 #
+#pointed pole, caring about resolution-efficiency
+#https://www.mapthematics.com/forums/viewtopic.php?f=8&t=841
+parallelarc(a,s)=a*(sin(s/a)+I-I*cos(s/a))
+#AmericanPolyconic(C)=(lam=real(C),phi=imag(C),phi==0?lam:parallelarc(1/tan(phi),lam*cos(phi))+I*phi)
+StereoPolyconic(C)=(lam=real(C),phi=imag(C),phi==0?lam:parallelarc(2/tan(phi),lam*cos(phi))+I*2*tan(phi/2))
+catenary_s(a,s)=(a*asinh(s/a))+I*(sqrt(a*a+s*s)*sgn(a))
+catenarym1_s(a,s)=catenary_s(a,s)-I*a
+Catesoidal(C)=(lam=real(C),phi=imag(C),phi==0?lam:catenarym1_s(1/tan(phi),lam*cos(phi))+I*phi)
+Catereo(C)=(lam=real(C),phi=imag(C),phi==0?lam:catenarym1_s(2/tan(phi),lam*cos(phi))+I*2*tan(phi/2))
+RoundedPolyconic(C)=(lam=real(C),phi=imag(C),phi==0?lam:parallelarc(2/tan(phi),lam*(1-(phi/pi*2)**2))+I*2*tan(phi/2))
+RoundyPolyconic(C)=(lam=real(C),phi=imag(C),phi==0?lam:parallelarc(2/tan(phi),lam*(2*cos(phi*2/3)-1))+I*2*tan(phi/2))
+#EAzEdCapsule: area=17.621, min-minor=1.000, resolution-efficiency=0.844
+#AmericanPolyconic: area=25.114, min-minor=0.860, resolution-efficiency=0.609
+#StereoPolyconic: area=22.220, min-minor=0.956, resolution-efficiency=0.719
+#Catereo: area=21.476, min-minor=0.815, resolution-efficiency=0.624
+#RoundedPolyconic: area=23.757, min-minor=1.000, resolution-efficiency=0.727
+#RoundyPolyconic: area=23.098, min-minor=0.995, resolution-efficiency=0.734
 #
 #
 
@@ -512,7 +537,8 @@ a2b2(C)=merscale(C)**2+parscale(C)**2
 angledeform(C)=2*asin(((a2b2-2*areascale)/(a2b2+2*areascale))**0.5)
 #cf. https://en.wikipedia.org/wiki/Tissot's_indicatrix
 #merscale=h,parscale=k,areascale=s=a*b=h*k*sin(thprime),a2b2=a**2+b**2=h**2+k**2
-#a+b=(a2b2+2*areascale)**0.5,a-b=(a2b2-2*areascale)**0.5
+aplusb(C)=(a2b2(C)+2*areascale(C))**0.5
+aminusb(C)=(a2b2(C)-2*areascale(C))**0.5
 #a/b+b/a=a2b2/areascale
 #a/b+b/a-2=(a2b2-2*areascale)/areascale=((a-b)/areascale**0.5)**2 せん断ひずみエネルギーとして採用
 #areascale(C)+1/areascale(C)-2 第1項はピストン外の大気圧、第2項はピストン内の等圧変化 面積ひずみエネルギーとして採用
@@ -552,6 +578,13 @@ print 'shearenergy(1/4)=', ene/180/90*pi/2
 #splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(a2b2(C)/areascale(C)-2),a2b2(C)/areascale(C)-2) with pm3d
 #print 'shearenergy(pole-heavy)(1/4)=', ene/180/90
 set terminal wxt 13
+#ene=0
+#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C))*cos(imag(C)),areascale(C)) with pm3d
+#print 'area(1/4) =', ene/180/90*pi*pi/2
+#min(a,b)=(a<b?a:b)
+#ene=1e300
+#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=min(ene,aplusb(C)-aminusb(C)),aplusb(C)-aminusb(C)) with pm3d
+#print 'min minor-axis =', ene/2
 }
 if (ARG1 eq 'survey') {
 print 'AitoffEmphasized'
