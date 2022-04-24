@@ -261,7 +261,7 @@ RoundedMercator(C)=abs(imag(C))>pi/4?(signp=(imag(C)<0?-1:1),EachScale(EAzEdTwoH
 
 #Wow!
 #https://www.mapthematics.com/forums/viewtopic.php?f=8&t=856
-#MiloDihedral
+MiloDihedral(C)=(C1=LatTLat(Eulerzyz(C,90*RPD,45*RPD,-90*RPD))*(1-I)/2,asin(sin(real(C1))*sqrt(2))+I*asin(sin(imag(C1))*sqrt(2)))
 #FalseMiloDihedral(C)=(C1=ApproxGuyou(C),InvApproxGuyou(real(C1))+I*InvApproxGuyou(imag(C1)))
 
 #Ž©ì My own work
@@ -299,6 +299,9 @@ HammerPeters(C,n)=(ymax=(n==0?2**0.5:sin(asin(sin(pi/4)*n)*2)/n),EachScale(HamCy
 #g(x)=real(ApproxQuincuncial((x+1)*pi/2)-1.3110287771460599)/real(ApproxQuincuncial((x+1)*pi/2)-ApproxQuincuncial((x+1)*pi/2+I*pi/2/10000))
 #within +-0.18 km
 ApproxQuincuncial(C)=(C1=ACN_Lagrange(C),C2=GeoMean(Lagrange(C),TLagrange(C)),z=GeoMean(C1,C2),z*1.461298+C1*-0.580510+C2*0.119212+z**5*0.00155830)
+N2E(C)=InvEStereo(NStereo(C))
+NApproxQuincuncial(C)=ApproxQuincuncial(N2E(C))
+ApproxAdamsHS(C)=(abs(real(C))>pi/2?NaN:ApproxQuincuncial(C))
 ApproxGuyou(C)=(abs(real(C))>pi/2?NaN:ApproxQuincuncial(Eulerzyz(C,90*RPD,45*RPD,-90*RPD))*(1-I))
 #
 #ApproxEisenlohr(C)=(Q=-4.0/(2+2**3*r1/10+2**5*r2/100+2**7*r3/1000)**2,z=Lagrange(C)/I,z=COblation((z+z**3*r1/10+z**5*r2/100+z**7*r3/1000),1,Q),(z+z**3*r4/10)*I)
@@ -401,7 +404,6 @@ CurlyCurve(t,amp)=InvMercator(t+I*cos(t*2)*amp)
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.250),-0.0*RPD,14.5*RPD,94.0*RPD)),real(xy)):(imag(xy)) w l
 #course J: cut Greenland.
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, 'world_10m.txt' using (C=($1+I*$2)*RPD,xy=CyEd(C),real(xy)):(imag(xy)) w l, '+' using (xy=CyEd(Eulerzyz(CurlyCurve(t,0.165),-0.0*RPD,15.0*RPD,97.0*RPD)),real(xy)):(imag(xy)) w l
-N2E(C)=InvEStereo(NStereo(C))
 ECurlyHemisphere_Ham(C,amp)=(gam=(pi/2-imag(CurlyCurve(0,amp)))/(pi/2+imag(CurlyCurve(0,amp))),EachScale(EAzEa(EachScale(C,gam,1)),1/gam,1))
 OnEastCurlyHemisphere(C,amp)=imag(Mercator(C))>amp*cos(2*real(C))
 TwoCurlyHemisphereA(C)=(gamma=(pi/2-imag(CurlyCurve(0,0.226)))/(pi/2+imag(CurlyCurve(0,0.226))),C1=Eulerzyz(C,-97*RPD,167*RPD,-168*RPD),OnEastCurlyHemisphere(C1,0.226)?ECurlyHemisphere_Ham(N2E(C1),0.226)+EAzEa(pi/2-imag(CurlyCurve(0,0.226)))/gamma:ECurlyHemisphere_Ham(N2E(-C1+pi/2),0.226)*-I-EAzEa(pi/2-imag(CurlyCurve(0,0.226))))
