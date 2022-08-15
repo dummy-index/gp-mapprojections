@@ -23,14 +23,15 @@ if (exist("WORLDMAP")==0) {
 #P:polar, first transverse 円筒図法で北極中心のイメージ（横軸）
 #  direct   Az  C   Cy
 #       \
-#NP-view    N       P  / PT?
-#              (D)?
+#NP-view    N       P  / PT
+#              (D)
 #Eq-view    E      (E) / T(90W-90E axis)
 #
 #SP-view    S?
 #Az:azimuthal, Cy:cylindrical
 #Ed:equidistant, Ea:equal-area, C:conformal
 #C:conic
+#HS:hemisphere in a square, WS: world in a square, WT: world in a triangle, WE: world in an ellipse
 #G:generalized (ex. Lagrange(): by Lambert, LagrangeG(): generalized version by Lagrange)
 
 #変数 Variables
@@ -144,7 +145,7 @@ NWiechel(C)=(lam=real(C),phi=imag(C),rho=1,(-rho*cos(lam)+sin(lam+phi))+I*(-rho*
 #memo https://commons.wikimedia.org/wiki/File:Tsubaki_crescent_shaped_plastic_chain.png
 WiechelPseudoconic(C,phi1)=(lam=real(C),phi=imag(C),n=sin(phi1),rho=(n==0?0:1/n),n==0?lam+cos(phi)-1+I*sin(phi):(rho*sin(n*lam-phi1)+cos(n*lam+phi-phi1))+I*(-rho*cos(n*lam-phi1)+sin(n*lam+phi-phi1)+tan(pi/2-phi1)))
 #https://www.mapthematics.com/ProjectionsList.php?Projection=214
-NIsoperimetricPseudoazimuthal(C)=(imag(C)<0?NaN:NWiechel(EachScale(C,1,2)-I*pi/2))
+NIsoperimetricPseudoazimuthal(C)=(imag(C)<0?NaN:NWiechel(EachScale(C,1,2)-I*pi/2)/2)
 Bacon(C)=(lam=real(C),phi=imag(C),y=pi/2*sin(phi),F=(lam==0?0:((pi/2)**2/abs(lam)+abs(lam))/2),lam==0?I*y:sgn(lam)*(abs(lam)-F+(F**2-y**2)**0.5)+I*y)
 Ortelius(C)=(lam=real(C),phi=imag(C),y=phi,F=(lam==0?0:((pi/2)**2/abs(lam)+abs(lam))/2),lam==0?I*y:abs(lam)<pi/2?sgn(lam)*(abs(lam)-F+(F**2-y**2)**0.5)+I*y:sgn(lam)*(abs(lam)-pi/2+((pi/2)**2-y**2)**0.5)+I*y)
 Nicolosi(C)=(lam=real(C),phi=imag(C),phi==0?lam:abs(lam)==pi/2?lam*cos(phi)+I*pi/2*sin(phi):(b=pi/2/lam-2*lam/pi,d=(1-(2*phi/pi)**2)/(sin(phi)-(2*phi/pi)),M=(b*sin(phi)/d-b/2)/(1+b**2/d**2),N=(d**2*sin(phi)/b**2+d/2)/(1+d**2/b**2),pi/2*(M+sgn(lam)*(M**2+cos(phi)**2/(1+b**2/d**2))**0.5)+I*pi/2*(N-sgn(phi*b*lam)*(N**2-(d**2*sin(phi)**2/b**2+d*sin(phi)-1)/(1+d**2/b**2))**0.5)))
@@ -258,8 +259,6 @@ LateralEd(C)=EachScale(LatTLat(EachScale(C,0.5,1)),2,1)
 #https://www.mapthematics.com/forums/viewtopic.php?f=8&t=633&sid=f8ccb8db8fed3fdb4b19a2480e4281bb#p1618
 RoundedMercator(C)=abs(imag(C))>pi/4?(signp=(imag(C)<0?-1:1),EachScale(EAzEdTwoHemisphere(EachScale(C-signp*I*pi/4,1,2)),1,0.5**0.5)+I*imag(Mercator(signp*I*pi/4))):Mercator(C)
 #SemicircularlyRoundedMercator(C)=abs(imag(C))>pi/4?(signp=(imag(C)<0?-1:1),EAzEdTwoHemisphere(InvMercator(Mercator(C)-signp*I*imag(Mercator(I*pi/4))))+I*imag(Mercator(signp*I*pi/4))):Mercator(C)
-
-#Wow!
 #https://www.mapthematics.com/forums/viewtopic.php?f=8&t=856
 MiloDihedral(C)=(C1=LatTLat(Eulerzyz(C,90*RPD,45*RPD,-90*RPD))*(1-I)/2,asin(sin(real(C1))*sqrt(2))+I*asin(sin(imag(C1))*sqrt(2)))
 #FalseMiloDihedral(C)=(C1=ApproxGuyou(C),InvApproxGuyou(real(C1))+I*InvApproxGuyou(imag(C1)))
@@ -439,6 +438,29 @@ RoundyPolyconic(C)=(lam=real(C),phi=imag(C),phi==0?lam:parallelarc(2/tan(phi),la
 #RoundedPolyconic: area=23.757, min-minor=1.000, resolution-efficiency=0.727
 #RoundyPolyconic: area=23.098, min-minor=0.995, resolution-efficiency=0.734
 #
+#polyhedral
+RadialModLatTLat(C)=(C1=InvNStereo(EStereo(C)),LatTLat(N2E(real(C1)+I*(pi/2-asin(sin((pi/2-imag(C1))/2)*sqrt(2))))))
+Trilinear(C)=imag(C)<0||real(C)<0||real(C)>pi/2?NaN:(d1=Distance(C,I*pi/2),d2=Distance(C,0),d3=Distance(C,pi/2),d=(d1+d2+d3-pi)/3,(d2+pi/2-d3)/2+I*(pi/2-d1+d)*sin(pi/3))
+Hemisphere2Octant(C)=InvMercator(Mercator(InvEStereo(EStereo(InvMercator(Mercator(InvEStereo(EStereo(InvNStereo(NStereo(C)*EStereo(pi/2)/EStereo(pi/1.5)))*I))/2-pi/4))/I))/2+pi/4)
+TrilinearHT(C)=Trilinear(Hemisphere2Octant(C))-pi/4-I*pi/2*sin(pi/3)/3
+TrilinearHex(C)=abs(real(C))>pi/2?NaN:(d1=Distance(C,I*pi/2)-pi/2,d2=Distance(C,-pi/2-I*pi/6)-pi/2,d3=Distance(C,pi/2-I*pi/6)-pi/2,d=(d1+d2+d3)/3,(d2-d3)/2+I*(-d1+d)*sin(pi/3))
+#consider resolution-efficiency: map (45°E,0°)-(45°E,35.26438968°N) to (pi/4,0)-(pi/4,pi/(4√3)) linearly
+TrilinearC0_ModDist(x)=(b=atan(2**-0.5),d0=pi/4,db=pi/2-b,x<b?x-Distance(0,pi/4+I*x)+d0+x*(db-d0)/b:x<pi/2-b?x:x+Distance(0,pi/4+I*(pi/2-x))-d0+(x-pi/2)*(db-d0)/b)
+#plot [0:pi/2]TrilinearC0_ModDist(x)
+TrilinearC0(C)=imag(C)<0||real(C)<0||real(C)>pi/2?NaN:(d1=TrilinearC0_ModDist(Distance(C,I*pi/2)),d2=TrilinearC0_ModDist(Distance(C,0)),d3=TrilinearC0_ModDist(Distance(C,pi/2)),d=(d1+d2+d3-pi)/3,(d2+pi/2-d3)/2+I*(pi/2-d1+d)*sin(pi/3))
+TrilinearC1_ModDist(x)=(b=atan(2**-0.5),d0=pi/4,db=pi/2-b,g1=1.0412134,g2=(pi/4-g1*b)/(pi/4-b),x<b?x*g1+(-Distance(0,pi/4+I*x)+d0+x*(db-d0)/b)*g2:x<pi/2-b?(x-pi/4)*g2+pi/4:pi/2-(pi/2-x)*g1+(+Distance(0,pi/4+I*(pi/2-x))-d0+(x-pi/2)*(db-d0)/b)*g2)
+#plot [db-0.00001:db+0.00001](TrilinearC1_ModDist(x+1e-8)-TrilinearC1_ModDist(x-1e-8))/2e-8
+TrilinearC1(C)=imag(C)<0||real(C)<0||real(C)>pi/2?NaN:(d1=TrilinearC1_ModDist(Distance(C,I*pi/2)),d2=TrilinearC1_ModDist(Distance(C,0)),d3=TrilinearC1_ModDist(Distance(C,pi/2)),d=(d1+d2+d3-pi)/3,(d2+pi/2-d3)/2+I*(pi/2-d1+d)*sin(pi/3))
+TrilinearC2_Mod3(x)=(g3=0.7225,x+(x-b)*(x-pi/4)*(x-(pi/2-b))*g3)
+TrilinearC2_ModDist(x)=(b=atan(2**-0.5),d0=pi/4,db=pi/2-b,g1=1.0506194992,g2=(pi/4-g1*b)/(pi/4-b),x<b?x*g1+(-TrilinearC2_Mod3(Distance(0,pi/4+I*x))+d0+x*(db-d0)/b)*g2:x<pi/2-b?(TrilinearC2_Mod3(x)-pi/4)*g2+pi/4:pi/2-(pi/2-x)*g1+(+TrilinearC2_Mod3(Distance(0,pi/4+I*(pi/2-x)))-d0+(x-pi/2)*(db-d0)/b)*g2)
+#plot [db-0.001:db+0.001](TrilinearC2_ModDist(x+1e-5)-2*TrilinearC2_ModDist(x)+TrilinearC2_ModDist(x-1e-5))/4e-5
+TrilinearC2(C)=imag(C)<0||real(C)<0||real(C)>pi/2?NaN:(d1=TrilinearC2_ModDist(Distance(C,I*pi/2)),d2=TrilinearC2_ModDist(Distance(C,0)),d3=TrilinearC2_ModDist(Distance(C,pi/2)),d=(d1+d2+d3-pi)/3,(d2+pi/2-d3)/2+I*(pi/2-d1+d)*sin(pi/3))
+#call 'world.plt' defstrainfunc TrilinearC2
+#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=TrilinearC2(C),real(xy)):(imag(xy)):((aplusb(C)-aminusb(C))/2<0.73671?0:1) with pm3d
+TrilinearC3_Mod5(x)=(g3=0.862867,g5=-3.5,x+(x-b)*(x-pi/4)*(x-(pi/2-b))*g3+(x-b)**2*(x-pi/4)*(x-(pi/2-b))**2*g5)
+TrilinearC3_ModDist(x)=(b=atan(2**-0.5),d0=pi/4,db=pi/2-b,g1=1.05236018082,g2=(pi/4-g1*b)/(pi/4-b),x<b?x*g1+(-TrilinearC3_Mod5(Distance(0,pi/4+I*x))+d0+x*(db-d0)/b)*g2:x<pi/2-b?(TrilinearC3_Mod5(x)-pi/4)*g2+pi/4:pi/2-(pi/2-x)*g1+(+TrilinearC3_Mod5(Distance(0,pi/4+I*(pi/2-x)))-d0+(x-pi/2)*(db-d0)/b)*g2)
+TrilinearC3(C)=imag(C)<0||real(C)<0||real(C)>pi/2?NaN:(d1=TrilinearC3_ModDist(Distance(C,I*pi/2)),d2=TrilinearC3_ModDist(Distance(C,0)),d3=TrilinearC3_ModDist(Distance(C,pi/2)),d=(d1+d2+d3-pi)/3,(d2+pi/2-d3)/2+I*(pi/2-d1+d)*sin(pi/3))
+#
 #
 
 
@@ -583,10 +605,10 @@ set terminal wxt 13
 #ene=0
 #splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C))*cos(imag(C)),areascale(C)) with pm3d
 #print 'area(1/4) =', ene/180/90*pi*pi/2
-#min(a,b)=(a<b?a:b)
-#ene=1e300
-#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=min(ene,aplusb(C)-aminusb(C)),aplusb(C)-aminusb(C)) with pm3d
-#print 'min minor-axis =', ene/2
+min(a,b)=(b<a?b:a)  #bがNaNなら更新しない
+ene=1e300
+splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=min(ene,(aplusb(C)-aminusb(C))/2),(aplusb(C)-aminusb(C))/2) with pm3d
+print 'min minor-axis =', ene
 }
 if (ARG1 eq 'survey') {
 print 'AitoffEmphasized'
