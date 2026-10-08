@@ -1,4 +1,4 @@
-#2016`
+#2016ï½
 #print ARGC
 if (ARGC<=0) {
 set size ratio -1
@@ -8,19 +8,19 @@ if (exist("WORLDMAP")==0) {
   WORLDMAP='world_110m.txt'
 }
 
-#å—vQl•¶Œ£i‘¼‚Í‚»‚Ìê‚Å‹Lq‚µ‚Ü‚·j
+#ä¸»è¦å‚è€ƒæ–‡çŒ®ï¼ˆä»–ã¯ãã®å ´ã§è¨˜è¿°ã—ã¾ã™ï¼‰
 #pp1453 https://pubs.er.usgs.gov/publication/pp1453
 #pp1395 https://pubs.er.usgs.gov/publication/pp1395
-#­t(2011) https://id.ndl.go.jp/bib/000011273603
+#æ”¿æ˜¥(2011) https://id.ndl.go.jp/bib/000011273603
 #Special thanks to
 #http://www.quadibloc.com/maps/mapint.htm
 
 
-#—ª‹L† Abbrev.
-#N:north polar •ûˆÊ}–@‚Å‹É’†S‚ÌƒCƒ[ƒWi³²j
-#E:equatorial •ûˆÊ}–@‚ÅÔ“¹’†S‚ÌƒCƒ[ƒWi‰¡²jA‰~“›}–@‚Å³²iÈ—ª‰Âj
-#T:transverse, second transverse ‰~“›}–@‚ÅÔ“¹’†S‚Å}–@²‚ªÔ“¹•ûŒü‚ğŒü‚¢‚Ä‚¢‚éƒCƒ[ƒWi‰¡²j‚©‚ÂXY•½–Ê‚Å‚à}–@²‚ªX•ûŒü‚Æ‚È‚Á‚Ä‚¢‚é
-#P:polar, first transverse ‰~“›}–@‚Å–k‹É’†S‚ÌƒCƒ[ƒWi‰¡²j
+#ç•¥è¨˜å· Abbrev.
+#N:north polar æ–¹ä½å›³æ³•ã§æ¥µä¸­å¿ƒã®ã‚¤ãƒ¡ãƒ¼ã‚¸ï¼ˆæ­£è»¸ï¼‰
+#E:equatorial æ–¹ä½å›³æ³•ã§èµ¤é“ä¸­å¿ƒã®ã‚¤ãƒ¡ãƒ¼ã‚¸ï¼ˆæ¨ªè»¸ï¼‰ã€å††ç­’å›³æ³•ã§æ­£è»¸ï¼ˆçœç•¥å¯ï¼‰
+#T:transverse, second transverse å††ç­’å›³æ³•ã§èµ¤é“ä¸­å¿ƒã§å›³æ³•è»¸ãŒèµ¤é“æ–¹å‘ã‚’å‘ã„ã¦ã„ã‚‹ã‚¤ãƒ¡ãƒ¼ã‚¸ï¼ˆæ¨ªè»¸ï¼‰ã‹ã¤XYå¹³é¢ã§ã‚‚å›³æ³•è»¸ãŒXæ–¹å‘ã¨ãªã£ã¦ã„ã‚‹
+#P:polar, first transverse å††ç­’å›³æ³•ã§åŒ—æ¥µä¸­å¿ƒã®ã‚¤ãƒ¡ãƒ¼ã‚¸ï¼ˆæ¨ªè»¸ï¼‰
 #  direct   Az  C   Cy
 #       \
 #NP-view    N       P  / PT
@@ -34,11 +34,11 @@ if (exist("WORLDMAP")==0) {
 #HS:hemisphere in a square, WS: world in a square, WT: world in a triangle, WE: world in an ellipse
 #G:generalized (ex. Lagrange(): by Lambert, LagrangeG(): generalized version by Lagrange)
 
-#•Ï” Variables
-#C: ˆÜ“xŒo“x, xy: •ÏŠ·Œã•½–ÊÀ•W, C1/C2/z/...: ˆê•Ï”
+#å¤‰æ•° Variables
+#C: ç·¯åº¦çµŒåº¦, xy: å¤‰æ›å¾Œå¹³é¢åº§æ¨™, C1/C2/z/...: ä¸€æ™‚å¤‰æ•°
 #lam: lambda, longitude, phi: latitude, rho: radius in xy-plane
 
-#Šî–{ƒc[ƒ‹ Base
+#åŸºæœ¬ãƒ„ãƒ¼ãƒ« Base
 #(double)pi<pi
 I={0,1}
 DPR=180/pi
@@ -50,14 +50,14 @@ silverratio=1+2**0.5
 Distance1(C1,C2)=2*asin( (sin((imag(C1)-imag(C2))/2)**2 +cos(imag(C1))*cos(imag(C2))*sin((real(C2)-real(C1))/2)**2)**0.5 )
 Distance2(C1,C2)=pi-Distance1(C1,real(C2)+pi+I*-imag(C2))
 Distance(C1,C2)=(sin(imag(C1))*sin(imag(C2))+cos(imag(C1))*cos(imag(C2))*cos(real(C2)-real(C1))>=0?Distance1(C1,C2):Distance2(C1,C2))
-#­t(2011) ÅŒã‚ÉŒo“x‚Ì”ÍˆÍ‚ğ’²®
+#æ”¿æ˜¥(2011) æœ€å¾Œã«çµŒåº¦ã®ç¯„å›²ã‚’èª¿æ•´
 Eulerzyz(C,lam0,phi0,psi)=(lam=real(C),phi=imag(C),alp=asin(sin(phi0)*sin(phi)+cos(phi0)*cos(phi)*cos(lam-lam0)),bet=acos((sin(phi0)*sin(alp)-sin(phi))/(cos(phi0)*cos(alp)))*sgn(sin(lam-lam0)),bet-psi-floor((bet-psi)/2/pi+0.5)*2*pi+I*alp)
 EachScale(C,sr,si)=real(C)*sr+I*imag(C)*si
 conj(C)=real(C)-I*imag(C)
 HarMean(C1,C2)=abs(C1)<1e-308?0:abs(C2)<1e-308?0:2*(C1**-1+C2**-1)**-1
 GeoMean(C1,C2)=(abs(arg(C1**0.5)-arg(C2**0.5))<pi/2?1:-1)*C1**0.5*C2**0.5
 
-#‰~“›}–@ Cylindrical projections
+#å††ç­’å›³æ³• Cylindrical projections
 CyEd(C)=C
 Equirectangular(C,phi1)=EachScale(C,1.0,1.0/cos(phi1))
 #Mercator(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(log(tan(imag(C)/2+pi/4)))
@@ -83,7 +83,7 @@ TLambertCyEa(C)=(lam=real(C),phi=imag(C),B=cos(phi)*sin(lam),B+I*(atan2(tan(phi)
 InvTCyEd(xy)=(x=real(xy),y=imag(xy),phi=asin(sin(y)*cos(x)),lam=atan2(tan(x),cos(y)),lam+I*phi)
 #ArdenCloseCy -> into #arithmetical
 
-#•ûˆÊ}–@ Azimuthal projections
+#æ–¹ä½å›³æ³• Azimuthal projections
 NOrtho(C)=(lam=real(C),phi=imag(C),rho=cos(phi),phi<0?NaN:(rho*sin(lam))+I*(-rho*cos(lam)))
 NStereo(C)=(lam=real(C),phi=imag(C),rho=2*tan(pi/4-phi/2),sin(phi)<-0.54-0.46?NaN:(rho*sin(lam))+I*(-rho*cos(lam)))
 NGnomo(C)=(lam=real(C),phi=imag(C),rho=1/tan(phi),phi<=0?NaN:(rho*sin(lam))+I*(-rho*cos(lam)))
@@ -102,7 +102,7 @@ InvEStereo(xy)=(x=real(xy),y=imag(xy),rho=(x*x+y*y)**0.5,c=2*atan(rho/2),phi=asi
 InvEOrtho(xy)=(x=real(xy),y=imag(xy),phi=asin(y),lam=asin(x/cos(phi)),lam+I*phi)
 InvEAzEa(xy)=(x=real(xy),y=imag(xy),rho=(x*x+y*y)**0.5,c=2*asin(rho/2),phi=asin(y*(rho==0?1:sin(c)/rho)),lam=atan2(x*(rho==0?1:sin(c)/rho),cos(c)),lam+I*phi)
 
-#‹[‰~“›}–@ Pseudocylindrical projections
+#æ“¬å††ç­’å›³æ³• Pseudocylindrical projections
 Sinusoidal(C)=real(C)*cos(imag(C))+I*(imag(C))
 MollTh(th,phi)=2*th+sin(2*th)-pi*sin(phi)
 Newton_MollTh(th,phi)=abs(MollTh(th,phi))<1e-12?th:Newton_MollTh(th-MollTh(th,phi)/((MollTh(th+1e-8,phi)-MollTh(th-1e-8,phi))/2/1e-8),phi)
@@ -123,19 +123,19 @@ TSinusoidal(C)=(lam=real(C),phi=imag(C),B=cos(phi)*sin(lam),asin(B)+I*(cos(asin(
 #Hufnagel projection family is a further develeopment of the parametric angle
 #https://www.mapthematics.com/interactive/hufnagel.html
 
-#‰~}–@ Conic projections
-#•W€ˆÜü1–{‚Ì®‚Ì‚İ’ñ¦ only tangent projections
+#å††éŒå›³æ³• Conic projections
+#æ¨™æº–ç·¯ç·š1æœ¬ã®å¼ã®ã¿æç¤º only tangent projections
 EdC(C,phi1)=(lam=real(C),phi=imag(C),n=sin(phi1),rho=cos(phi1)/n+phi1-phi,rho*sin(n*lam)+I*(-rho*cos(n*lam)))
 LambertCC(C,phi1)=(lam=real(C),phi=imag(C),n=sin(phi1),rho=cos(phi1)*tan(pi/4+phi1/2)**n/n/tan(pi/4+phi/2)**n,rho*sin(n*lam)+I*(-rho*cos(n*lam)))
 #LambertCC(C,phi1)=exp((Mercator(C)-Mercator(I*phi1))*I*sin(phi1))*-I/tan(phi1)
 AlbersEaC(C,phi1)=(lam=real(C),phi=imag(C),n=sin(phi1),rho=(cos(phi1)**2+2*n*sin(phi1)-2*n*sin(phi))**0.5/n,rho*sin(n*lam)+I*(-rho*cos(n*lam)))
 LambertEaC(C,phi1)=(lam=real(C),phi=imag(C),n=(1+sin(phi1))/2,rho=2*sin(pi/4-phi/2)/n**0.5,rho*sin(n*lam)+I*(-rho*cos(n*lam)))
 
-#‹[‰~}–@ Pseudoconic projections
+#æ“¬å††éŒå›³æ³• Pseudoconic projections
 Bonne(C,phi1)=(lam=real(C),phi=imag(C),rho=1/tan(phi1)+phi1-phi,n=cos(phi)/rho,rho*sin(n*lam)+I*(-rho*cos(n*lam)))
 Werner(C)=(lam=real(C),phi=imag(C),rho=pi/2-phi,n=cos(phi)/rho,rho*sin(n*lam)+I*(-rho*cos(n*lam)))
 
-#‘½‰~}–@ Polyconic projections
+#å¤šå††éŒå›³æ³• Polyconic projections
 AmericanPolyconic(C)=(lam=real(C),phi=imag(C),E=lam*sin(phi),rho=1/tan(phi),phi==0?lam:rho*sin(E)+I*(phi+rho*(1-cos(E))))
 RectangularPolyconic(C)=(lam=real(C),phi=imag(C),E=2*atan(lam/2*sin(phi)),rho=1/tan(phi),phi==0?lam:rho*sin(E)+I*(phi+rho*(1-cos(E))))
 
@@ -200,10 +200,10 @@ Bottomley(C,phi1)=EachScale(Werner(EachScale(C,sin(phi1),1)),1/sin(phi1),1)
 WagnerIV(C)=EachScale(Mollweide(InvLambertCyEa(EachScale(LambertCyEa(C),1,2.0/3+3**0.5/2/pi))),(0.86310)/(2**1.5/pi),1.56548/(2**0.5))
 #http://www.quadibloc.com/maps/mmi0902.htm
 WagnerIX(C)=EachScale(EAzEa(EachScale(C,5/18.0,7/9.0)),18.0/5,9.0/7)
-#_’J(2012) https://www.jstage.jst.go.jp/article/jjca/50/3/50_3_1/_article/-char/ja/
-#ƒGƒCƒgƒt•ÏŠ·‚Æ‚¢‚¤Œ¾‚¢•û‚ÍˆÈ‘O‚©‚ç‘¶İ‚µ‚Ä‚¢‚é
+#ç¥è°·(2012) https://www.jstage.jst.go.jp/article/jjca/50/3/50_3_1/_article/-char/ja/
+#ã‚¨ã‚¤ãƒˆãƒ•å¤‰æ›ã¨ã„ã†è¨€ã„æ–¹ã¯ä»¥å‰ã‹ã‚‰å­˜åœ¨ã—ã¦ã„ã‚‹
 #https://www.jstage.jst.go.jp/article/jjca1963/3/1/3_1_33/_article/-char/ja
-#‰pŒê‚¾‚ÆAitoff's transformation method‚Æ‚È‚é‚ªA—p—á‚ª­‚È‚¢
+#è‹±èªã ã¨Aitoff's transformation methodã¨ãªã‚‹ãŒã€ç”¨ä¾‹ãŒå°‘ãªã„
 #http://www.cartography.oregonstate.edu/pdf/2014_Savric_Jenny_ANewPseudocylindricalEqual-areaProjection.pdf
 AitoffTrans_Stereo(C)=EachScale(EStereo(EachScale(C,0.5,1)),2,1)
 #https://www.mapthematics.com/forums/viewtopic.php?f=8&t=559
@@ -263,7 +263,7 @@ RoundedMercator(C)=abs(imag(C))>pi/4?(signp=(imag(C)<0?-1:1),EachScale(EAzEdTwoH
 MiloDihedral(C)=(C1=LatTLat(Eulerzyz(C,90*RPD,45*RPD,-90*RPD))*(1-I)/2,asin(sin(real(C1))*sqrt(2))+I*asin(sin(imag(C1))*sqrt(2)))
 #FalseMiloDihedral(C)=(C1=ApproxGuyou(C),InvApproxGuyou(real(C1))+I*InvApproxGuyou(imag(C1)))
 
-#©ì My own work
+#è‡ªä½œ My own work
 #FalseCyEd(C)=real(C)+I*2/(1/imag(Mercator(C))+1/imag(LambertCyEa(C)))
 FalseMercator(C)=real(C)+I/(2/imag(C)-1/imag(LambertCyEa(C)))
 FalseArdenCloseCy(C)=real(C)+I*imag(LambertCyEa(C))/(2-imag(C)/imag(LambertCyEa(C)))
@@ -318,7 +318,7 @@ Inflation(C,n)=C==pi?C:C==-pi?C:InvEStereo(EStereo(C)*n)
 #f(x)=abs(ApproxEisenlohr90(pi+I*(x)*pi*3/4)-ApproxEisenlohr90(pi+I*(x)*pi*3/4-I*1e-6))*1e6
 #fit [x=0:1] f(1-(1-x)**2)/r5 '0to1-0-1.dat'using 1:3 via r1,r2,r3,r4,r5
 #r1=0.961831, r2=1.27208, r3=0.126022, r4=0.31818, r5=1.11993
-#scale factor: 0.5 @ center, min 0.46389 @ 0‹N 66‹E/W, max 1.1203
+#scale factor: 0.5 @ center, min 0.46389 @ 0Â°N 66Â°E/W, max 1.1203
 ApproxEisenlohr90(C)=(n=EStereo(pi/2)/EStereo(pi/4),Q=(2.80979184)/(1.5597408),z=Lagrange(Inflation(C,n))/I,z=(z+z**3*0.0961831+z**5*0.00126022)/(1+z**2*0.127208+z**4*0.0031818),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)/n*I)
 #ApproxEisenlohr270(C)=(n=EStereo(pi/2)/EStereo(pi*3/4),Q=(2+2**3*r1/10+2**5*r3/100)/(1+2**2*r2/10+2**4*r4/100),z=Lagrange(Inflation(C,n))/I,z=(z+z**3*r1/10+z**5*r3/100)/(1+z**2*r2/10+z**4*r4/100),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)/n*I)
 #f(x)=abs(ApproxEisenlohr270(pi+I*(x)*pi/4)-ApproxEisenlohr270(pi+I*(x)*pi/4-I*1e-6))*1e6
@@ -338,7 +338,7 @@ Sphere2SHemisphere(C)=InvEStereo(TLagrange2LHalfPlane(C))
 #f(x)=abs(ConformalRoundedMercator(I*(1+x)*pi/4+I*1.1e-4)-ConformalRoundedMercator(I*(1+x)*pi/4+I*0.1e-4))*1e4
 #fit [x=0:1] f(x**2)/r5 '0to1-0-1.dat'using 1:3 via r1,r2,r3,r4,r5
 #r1=-0.164059, r2=0.0997807, r3=-0.0275333, r4=-0.0994837, r5=2.62206
-#scale factor on CRM1: 1.086 @ center, 0.927 @ 90‹W/E, 2.62198~2.62214 @ peripheral
+#scale factor on CRM1: 1.086 @ center, 0.927 @ 90Â°W/E, 2.62198~2.62214 @ peripheral
 ApproxEisenlohr_CRM1(C)=(Q=1.81635881760378,z=Lagrange(C)/I,z=(z+z**3*-0.0164059+z**5*-0.000275333)/(1+z**2*0.00997807+z**4*-0.000994837),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)*I)
 ApproxConformalRoundedMercator1(C)=Mercator(imag(C)<0?Sphere2SHemisphere(InvEStereo(ApproxEisenlohr_CRM1(SHemisphere2Sphere(C))/ApproxEisenlohr_CRM1(pi/2)*2)):Sphere2NHemisphere(InvEStereo(ApproxEisenlohr_CRM1(NHemisphere2Sphere(C))/ApproxEisenlohr_CRM1(pi/2)*2)))
 #CRM2: makes interruption semicircles
@@ -346,7 +346,7 @@ ApproxConformalRoundedMercator1(C)=Mercator(imag(C)<0?Sphere2SHemisphere(InvESte
 #fit [x=0:1] f(x**2)/(pi/2) '0to1-0-1.dat'using 1:3 via r1,r2,r3,r4
 #r1=0.0444918, r2=0.568859, r3=-0.0725106, r4=-0.151152
 #radius: 1.57076~1.57082
-#scale factor on CRM2: 1.046 @ center, 0.959 @ 90‹W/E, max 4.15 @ pole
+#scale factor on CRM2: 1.046 @ center, 0.959 @ 90Â°W/E, max 4.15 @ pole
 ApproxEisenlohr_CRM2(C)=(Q=1.67231024137696,z=Lagrange(C)/I,z=(z+z**3*0.00444918+z**5*-0.000725106)/(1+z**2*0.0568859+z**4*-0.00151152),z=sin(z*pi/2/Q)/pi*2*Q,(z)/(1)*I)
 ApproxConformalRoundedMercator2(C)=Mercator(imag(C)<0?Sphere2SHemisphere(InvEStereo(ApproxEisenlohr_CRM2(SHemisphere2Sphere(C))/ApproxEisenlohr_CRM2(pi/2)*2)):Sphere2NHemisphere(InvEStereo(ApproxEisenlohr_CRM2(NHemisphere2Sphere(C))/ApproxEisenlohr_CRM2(pi/2)*2)))
 #
@@ -444,7 +444,7 @@ Trilinear(C)=imag(C)<0||real(C)<0||real(C)>pi/2?NaN:(d1=Distance(C,I*pi/2),d2=Di
 Hemisphere2Octant(C)=InvMercator(Mercator(InvEStereo(EStereo(InvMercator(Mercator(InvEStereo(EStereo(InvNStereo(NStereo(C)*EStereo(pi/2)/EStereo(pi/1.5)))*I))/2-pi/4))/I))/2+pi/4)
 TrilinearHT(C)=Trilinear(Hemisphere2Octant(C))-pi/4-I*pi/2*sin(pi/3)/3
 TrilinearHex(C)=abs(real(C))>pi/2?NaN:(d1=Distance(C,I*pi/2)-pi/2,d2=Distance(C,-pi/2-I*pi/6)-pi/2,d3=Distance(C,pi/2-I*pi/6)-pi/2,d=(d1+d2+d3)/3,(d2-d3)/2+I*(-d1+d)*sin(pi/3))
-#consider resolution-efficiency: map (45‹E,0‹)-(45‹E,35.26438968‹N) to (pi/4,0)-(pi/4,pi/(4ã3)) linearly
+#consider resolution-efficiency: map (45Â°E,0Â°)-(45Â°E,35.26438968Â°N) to (pi/4,0)-(pi/4,pi/(4âˆš3)) linearly
 TrilinearC0_ModDist(x)=(b=atan(2**-0.5),d0=pi/4,db=pi/2-b,x<b?x-Distance(0,pi/4+I*x)+d0+x*(db-d0)/b:x<pi/2-b?x:x+Distance(0,pi/4+I*(pi/2-x))-d0+(x-pi/2)*(db-d0)/b)
 #plot [0:pi/2]TrilinearC0_ModDist(x)
 TrilinearC0(C)=imag(C)<0||real(C)<0||real(C)>pi/2?NaN:(d1=TrilinearC0_ModDist(Distance(C,I*pi/2)),d2=TrilinearC0_ModDist(Distance(C,0)),d3=TrilinearC0_ModDist(Distance(C,pi/2)),d=(d1+d2+d3-pi)/3,(d2+pi/2-d3)/2+I*(pi/2-d1+d)*sin(pi/3))
@@ -461,7 +461,40 @@ TrilinearC3_Mod5(x)=(g3=0.862867,g5=-3.5,x+(x-b)*(x-pi/4)*(x-(pi/2-b))*g3+(x-b)*
 TrilinearC3_ModDist(x)=(b=atan(2**-0.5),d0=pi/4,db=pi/2-b,g1=1.05236018082,g2=(pi/4-g1*b)/(pi/4-b),x<b?x*g1+(-TrilinearC3_Mod5(Distance(0,pi/4+I*x))+d0+x*(db-d0)/b)*g2:x<pi/2-b?(TrilinearC3_Mod5(x)-pi/4)*g2+pi/4:pi/2-(pi/2-x)*g1+(+TrilinearC3_Mod5(Distance(0,pi/4+I*(pi/2-x)))-d0+(x-pi/2)*(db-d0)/b)*g2)
 TrilinearC3(C)=imag(C)<0||real(C)<0||real(C)>pi/2?NaN:(d1=TrilinearC3_ModDist(Distance(C,I*pi/2)),d2=TrilinearC3_ModDist(Distance(C,0)),d3=TrilinearC3_ModDist(Distance(C,pi/2)),d=(d1+d2+d3-pi)/3,(d2+pi/2-d3)/2+I*(pi/2-d1+d)*sin(pi/3))
 #
-#
+#polyparabolic
+Rcbrt(x)=abs(x)**(1./3)*sgn(x)
+#y scaling: 1+a*(x^2)
+#speed in x:
+# dlong/dx = 1 + a*(x^2)
+# long(x) = x + a*(x^3)/3
+# long*3/a = x*3/a + (x^3)
+# (x^3) + x*3/a - long*3/a = 0
+#p=3/a, q=-long*3/a
+Inv1ax2(t,a)=(a==0?t:Rcbrt(t*1.5/a+sqrt((-t*1.5/a)**2+(1./a)**3))+Rcbrt(t*1.5/a-sqrt((-t*1.5/a)**2+(1./a)**3)))
+EaParabolic(C,a)=(xt=Inv1ax2(real(C),a),xt+I*((1+xt**2*a)*sin(imag(C))))
+NEaConcentricParabolas(C,a)=(lam=real(C),phi=imag(C),xt=Inv1ax2(lam,a),rho=2*sin(pi/4-phi/2),(rho*xt)+I*(-rho*(1-xt**2*a)))
+CombinedParabolas141(C)=(imag(C)>asin(2./3)?EachScale(NEaConcentricParabolas(C,(pi*3/4)**-2),1.5**0.5,1.5**-0.5)+I*4./3:imag(C)>-asin(2./3)?EaParabolic(C,(pi*3/4)**-2):EachScale(-NEaConcentricParabolas(-C,(pi*3/4)**-2),1.5**0.5,1.5**-0.5)-I*4./3)
+AllParabolic(C,a)=(C1=NEaConcentricParabolas(C,a),C1+I*(2**0.5-2**-0.5*real(C1)**2*a))
+CombinedParabolas121(C)=(imag(C)>asin(0.5)?(C1=NEaConcentricParabolas(C,a=(pi*3/4)**-2),C1+I*(1.5-0.5*real(C1)**2*a)):imag(C)>-asin(0.5)?EaParabolic(C,(pi*3/4)**-2):(C1=-NEaConcentricParabolas(-C,a=(pi*3/4)**-2),C1-I*(1.5-0.5*real(C1)**2*a)))
+EaParabolicFolding(z,a)=(rho=-imag(z),xt=Inv1ax2(real(z)/rho,a),(rho*xt)+I*(-rho*(1-xt**2*a)))
+#N: y = lat + x^2/(pi/2-lat)
+#S: y = lat - x^2/(lat+pi/2)
+#average:
+# y = lat + x^2/2 * (1/(pi/2-lat) - 1/(lat+pi/2))
+#c=lat, a=(1/(pi/2-lat) - 1/(lat+pi/2))/2
+#infinitesimal strip:
+# dc/dlat = 1
+# da/dlat = (1/(pi/2-lat)^2 + 1/(lat+pi/2)^2)/2
+EaPolyparabolic(C,a)=(lam=real(C),phi=imag(C),atang=a*((pi/2-phi)**-2+(phi+pi/2)**-2)/2,xt=Inv1ax2(lam*cos(phi),atang),xt+I*((1+xt**2*a*(1/(pi/2-phi)-1/(phi+pi/2))/2)*phi))
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CombinedParabolas141(C),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=CombinedParabolas141(C),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=AllParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=AllParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=($2>0?AllParabolic(C,(pi*3/4)**-2):-AllParabolic(-C,(pi*3/4)**-2)),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=($2>0?AllParabolic(C,(pi*3/4)**-2):-AllParabolic(-C,(pi*3/4)**-2)),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CombinedParabolas121(C),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=CombinedParabolas121(C),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaParabolicFolding(Sinusoidal(C)-I*pi/2,(pi*3/4)**-2)+I*pi/2,real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaParabolicFolding(Sinusoidal(C)-I*pi/2,(pi*3/4)**-2)+I*pi/2,real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=(C1=EaParabolicFolding(Sinusoidal(C)-I*pi/2,(pi*3/4)**-2),C1+I*(pi/2-real(C1)**2*(2/pi)*(pi*3/4)**-2)),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=(C1=EaParabolicFolding(Sinusoidal(C)-I*pi/2,(pi*3/4)**-2),C1+I*(pi/2-real(C1)**2*(2/pi)*(pi*3/4)**-2)),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaPolyparabolic(C,(pi*3/4)**-2*2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaPolyparabolic(C,(pi*3/4)**-2*2),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaPolyparabolic(C,1),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaPolyparabolic(C,1),real(xy)):(imag(xy)) w l
 
 
 #Baseball projection, alpha version
@@ -483,7 +516,7 @@ BaseballCurve(t)=NBaseballStrip(InvNStereo(NS_BaseballCurve(t)))
 #r1=0.889157, r2=0.296751, r3=0.264297, r4=0.000134605
 #NS_BaseballCurve(t)=(z=exp(I*t),2*z*exp(I*imag(z**4/4)+real(z**2*1.5)))
 #r1=1.00442, r2=0.317375, r3=0.0212041, r4=0.000311200
-#“Ê‚É–D‚¢‡‚í‚¹‚ç‚ê‚é‚©‚ÌŒŸ“¢
+#å‡¸ã«ç¸«ã„åˆã‚ã›ã‚‰ã‚Œã‚‹ã‹ã®æ¤œè¨
 #BBCheckStitch1(x,l1)=real((BaseballCurve(x)-BaseballCurve(0))/I)-sin(real(BaseballCurve(pi/2-x)-BaseballCurve(pi/2))*l1)/l1
 #BBCheckStitch2(x,l1,b0)=BBCheckStitch2(x,l1,b0,b1)=imag((BaseballCurve(x)-BaseballCurve(0))/I)*exp(I*b0)-imag(BaseballCurve(pi/2-x)-BaseballCurve(pi/2))-I*(1-cos(real(BaseballCurve(pi/2-x)-BaseballCurve(pi/2))*l1))/l1
 #plot t,real(BBCheckStitch2(t,1.145,0.935)), t,imag(BBCheckStitch2(t,1.145,0.935)), t,BBCheckStitch1(x,1.145)
@@ -505,11 +538,11 @@ BaseballCurve(t)=NBaseballStrip(InvNStereo(NS_BaseballCurve(t)))
 #NS_BaseballCurve(t)=(z=exp(I*t),2*z*exp(I*imag(z**4/4)+real(z**2*1.4+z**6*0.02)))
 #r1=1.01953, r2=0.259496, r3=0.154880, r4=0.000326087
 #plot t,real(BBCheckStitch2(t,1.220,0.944)), t,imag(BBCheckStitch2(t,1.220,0.944)), t,BBCheckStitch1(x,1.220)
-#Ê‘œ‚©‚çŠOŒ`‚ğ‹‚ß‚Ä‚İ‚é
+#å†™åƒã‹ã‚‰å¤–å½¢ã‚’æ±‚ã‚ã¦ã¿ã‚‹
 #NS_BaseballCurve(t)=(z=exp(I*t),2*z*exp(I*imag(z**4*r2)+real(z**2*r1+z**6*r3+z**10*r4+z**14*r5)))
 
 
-#ˆÈ‰º–¢®—
+#ä»¥ä¸‹æœªæ•´ç†
 
 AitoffLagrange(C)=EachScale(Lagrange270(EachScale(C,1/1.5,1)),1.5,1)
 AitoffTrans_TSinusoidal(C)=EachScale(TSinusoidal(EachScale(C,0.5,1)),2,1)
@@ -524,8 +557,8 @@ ATSEmp2(C,B1,B2,n)=(lam=real(C)/B1/n**0.5,phi=imag(C),cosz=cos(phi)*cos(lam),K=2
 HammerEmp2(C,B1,B2,n)=(lam=real(C)/B1/n**0.5,phi=imag(C),cosz=cos(phi)*cos(lam),K=(2/(1+cosz))**0.5,cosz<=-0.88-0.12?NaN:(K*cos(phi)*sin(lam))*B1*n**0.5+I*(K*sin(phi))*B2*n-EAzEa(I*imag(C))*(B2*n-1))
 AitoffTEmp(C,B1,B2,n)=(lam=real(C)/B1,phi=imag(C)/I,z=acos(cos(phi)*cos(lam)),K=(z==0?1:z/sin(z)),z>=pi?NaN:(K*cos(phi)*sin(lam))*B1*B2+(real(C))*(1-B2)+I*(K*sin(phi))*I)
 
-#ƒ}ƒbƒv’[‚ÅˆÜü‚ÆŒoü‚ª’¼Œğ‚·‚éƒpƒ‰ƒ[ƒ^‚ğ’T‚·
-#‰EãÛŒÀ‚Åarg()“™‚ğg‚¢‚â‚·‚¢‚æ‚¤‚ÉŒoü“ìŒü‚«‚ÆˆÜü“ŒŒü‚«‚Æ‚·‚é
+#ãƒãƒƒãƒ—ç«¯ã§ç·¯ç·šã¨çµŒç·šãŒç›´äº¤ã™ã‚‹ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’æ¢ã™
+#å³ä¸Šè±¡é™ã§arg()ç­‰ã‚’ä½¿ã„ã‚„ã™ã„ã‚ˆã†ã«çµŒç·šå—å‘ãã¨ç·¯ç·šæ±å‘ãã¨ã™ã‚‹
 #aem(lat,B1,B2)=(AitoffEmp(pi+I*(lat-1e-6),B1,B2)-AitoffEmp(pi+I*(lat+1e-6),B1,B2))/2e-6
 #aep(lat,B1,B2)=(AitoffEmp(pi+1e-6+I*lat,B1,B2)-AitoffEmp(pi-1e-6+I*lat,B1,B2))/2e-6
 #aea(lat,B1,B2)=arg(aep(lat,B1,B2))-arg(aem(lat,B1,B2))-pi/2
@@ -535,7 +568,7 @@ AitoffTEmp(C,B1,B2,n)=(lam=real(C)/B1,phi=imag(C)/I,z=acos(cos(phi)*cos(lam)),K=
 #set contour
 #unset surface
 #splot [1.7:1.725][1.68:1.7] aea(89.9*RPD,x,y),aea(70*RPD,x,y),aea(50*RPD,x,y),aea(30*RPD,x,y),aea(10*RPD,x,y)
-#¨W1=1.71~1.715,W2=1.68~1.69iˆê“_‚É‚ÍŒˆ‚Ü‚ç‚È‚©‚Á‚½j
+#â†’W1=1.71~1.715,W2=1.68~1.69ï¼ˆä¸€ç‚¹ã«ã¯æ±ºã¾ã‚‰ãªã‹ã£ãŸï¼‰
 
 plot 'world.dat' w l
 pause -1
@@ -564,19 +597,19 @@ angledeform(C)=2*asin(((a2b2-2*areascale)/(a2b2+2*areascale))**0.5)
 aplusb(C)=(a2b2(C)+2*areascale(C))**0.5
 aminusb(C)=(a2b2(C)-2*areascale(C))**0.5
 #a/b+b/a=a2b2/areascale
-#a/b+b/a-2=(a2b2-2*areascale)/areascale=((a-b)/areascale**0.5)**2 ‚¹‚ñ’f‚Ğ‚¸‚İƒGƒlƒ‹ƒM[‚Æ‚µ‚ÄÌ—p
-#areascale(C)+1/areascale(C)-2 ‘æ1€‚ÍƒsƒXƒgƒ“ŠO‚Ì‘å‹Cˆ³A‘æ2€‚ÍƒsƒXƒgƒ““à‚Ì“™ˆ³•Ï‰» –ÊÏ‚Ğ‚¸‚İƒGƒlƒ‹ƒM[‚Æ‚µ‚ÄÌ—p
-#_’J(2012)u‚½‚¾‚µAŠe}–@‚ÍAEsn‚ğÅ¬‚Æ‚·‚é‚æ‚¤‚ÉAŠg‘å‚Ü‚½‚Ík¬‚ğs‚Á‚Ä‚¢‚éBv
-#‘S‘Ì‚Ì–ÊÏ‚ğ³Ï}–@‚Æ‡‚í‚¹‚é‚æ‚¤‚É‚·‚é‚Æ–ÊÏ‚Ğ‚¸‚İƒGƒlƒ‹ƒM[‚ªÅ¬‚É‹ß‚­‚È‚é
+#a/b+b/a-2=(a2b2-2*areascale)/areascale=((a-b)/areascale**0.5)**2 ã›ã‚“æ–­ã²ãšã¿ã‚¨ãƒãƒ«ã‚®ãƒ¼ã¨ã—ã¦æ¡ç”¨
+#areascale(C)+1/areascale(C)-2 ç¬¬1é …ã¯ãƒ”ã‚¹ãƒˆãƒ³å¤–ã®å¤§æ°—åœ§ã€ç¬¬2é …ã¯ãƒ”ã‚¹ãƒˆãƒ³å†…ã®ç­‰åœ§å¤‰åŒ– é¢ç©ã²ãšã¿ã‚¨ãƒãƒ«ã‚®ãƒ¼ã¨ã—ã¦æ¡ç”¨
+#ç¥è°·(2012)ã€ŒãŸã ã—ã€å„å›³æ³•ã¯ã€Esnã‚’æœ€å°ã¨ã™ã‚‹ã‚ˆã†ã«ã€æ‹¡å¤§ã¾ãŸã¯ç¸®å°ã‚’è¡Œã£ã¦ã„ã‚‹ã€‚ã€
+#å…¨ä½“ã®é¢ç©ã‚’æ­£ç©å›³æ³•ã¨åˆã‚ã›ã‚‹ã‚ˆã†ã«ã™ã‚‹ã¨é¢ç©ã²ãšã¿ã‚¨ãƒãƒ«ã‚®ãƒ¼ãŒæœ€å°ã«è¿‘ããªã‚‹
 #NStereo(C)/2**0.5*1.04,NAzEd(C)/pi*2**1.5*1.004
-#¨—‘z‚Ì‚Ğ‚¸‚İƒGƒlƒ‹ƒM[’è‹`‚Í‚±‚ê‚ÅÅ¬‚É‚È‚Á‚½‚è‚µ‚Ä‚Ù‚µ‚¢‹C•ª‚¾‚ª[“ü‚è‚µ‚È‚¢i‘Î”‚Ğ‚¸‚İ‚©‚ÈHj
-#_’J(2012)uˆê”Ê‚É‚ÍAƒnƒ“ƒƒ‹}–@‚Íƒ‚ƒ‹ƒƒCƒf}–@‚æ‚è—D‚ê‚Ä‚¢‚é‚Æ•]‰¿‚³‚ê‚Ä‚¢‚év
-#¡‰ñ‚Ì‚¹‚ñ’f‚Ğ‚¸‚İƒGƒlƒ‹ƒM[’è‹`‚¾‚Æƒnƒ“ƒƒ‹}–@‚Í3.162Aƒ‚ƒ‹ƒƒCƒf}–@‚Í2.974
-#‚µ‚©‚µƒnƒ“ƒƒ‹}–@‚Íx•ûŒü‚Éˆø‚«L‚Î‚³‚ê‚·‚¬‚Ì‚«‚ç‚¢‚ª‚ ‚è
-#Briesemeister‚Ì”ä—¦(1.75/2)‚ğÌ—p‚·‚é‚Æ2.872A0.77‚Ì”ä—¦‚Å2.777
-#ƒ‚ƒ‹ƒƒCƒf}–@‚Ì•û‚ğ’²®‚·‚é‚Æ0.77‚Ì”ä—¦‚Å2.607i1‹ƒƒbƒVƒ…‚Å“ÁˆÙ“_•t‹ß‚Ì‹ß—‚ª\•ª‚©Hj
-#ƒ‚ƒ‹ƒƒCƒf}–@‚Ì‚¹‚ñ’f‚Ğ‚¸‚İ‚ª”­U‚·‚é‚Æ‚±‚ë‚ªŒ™‚í‚ê‚Ä‚¢‚é‚Ì‚Í‚í‚©‚é‚ªAÏ•ª‚·‚é‚Æû‘©‚·‚é’ö“x‚Ì“ÁˆÙ“_‚Å‚ ‚é
-#ƒGƒCƒgƒt}–@‚Í”ä—¦0.79AƒGƒCƒgƒt•ÏŠ·•½Ë‚Í”ä—¦0.82
+#â†’ç†æƒ³ã®ã²ãšã¿ã‚¨ãƒãƒ«ã‚®ãƒ¼å®šç¾©ã¯ã“ã‚Œã§æœ€å°ã«ãªã£ãŸã‚Šã—ã¦ã»ã—ã„æ°—åˆ†ã ãŒæ·±å…¥ã‚Šã—ãªã„ï¼ˆå¯¾æ•°ã²ãšã¿ã‹ãªï¼Ÿï¼‰
+#ç¥è°·(2012)ã€Œä¸€èˆ¬ã«ã¯ã€ãƒãƒ³ãƒ¡ãƒ«å›³æ³•ã¯ãƒ¢ãƒ«ãƒ¯ã‚¤ãƒ‡å›³æ³•ã‚ˆã‚Šå„ªã‚Œã¦ã„ã‚‹ã¨è©•ä¾¡ã•ã‚Œã¦ã„ã‚‹ã€
+#ä»Šå›ã®ã›ã‚“æ–­ã²ãšã¿ã‚¨ãƒãƒ«ã‚®ãƒ¼å®šç¾©ã ã¨ãƒãƒ³ãƒ¡ãƒ«å›³æ³•ã¯3.162ã€ãƒ¢ãƒ«ãƒ¯ã‚¤ãƒ‡å›³æ³•ã¯2.974
+#ã—ã‹ã—ãƒãƒ³ãƒ¡ãƒ«å›³æ³•ã¯xæ–¹å‘ã«å¼•ãä¼¸ã°ã•ã‚Œã™ãã®ãã‚‰ã„ãŒã‚ã‚Š
+#Briesemeisterã®æ¯”ç‡(1.75/2)ã‚’æ¡ç”¨ã™ã‚‹ã¨2.872ã€0.77ã®æ¯”ç‡ã§2.777
+#ãƒ¢ãƒ«ãƒ¯ã‚¤ãƒ‡å›³æ³•ã®æ–¹ã‚’èª¿æ•´ã™ã‚‹ã¨0.77ã®æ¯”ç‡ã§2.607ï¼ˆ1Â°ãƒ¡ãƒƒã‚·ãƒ¥ã§ç‰¹ç•°ç‚¹ä»˜è¿‘ã®è¿‘ä¼¼ãŒååˆ†ã‹ï¼Ÿï¼‰
+#ãƒ¢ãƒ«ãƒ¯ã‚¤ãƒ‡å›³æ³•ã®ã›ã‚“æ–­ã²ãšã¿ãŒç™ºæ•£ã™ã‚‹ã¨ã“ã‚ãŒå«Œã‚ã‚Œã¦ã„ã‚‹ã®ã¯ã‚ã‹ã‚‹ãŒã€ç©åˆ†ã™ã‚‹ã¨åæŸã™ã‚‹ç¨‹åº¦ã®ç‰¹ç•°ç‚¹ã§ã‚ã‚‹
+#ã‚¨ã‚¤ãƒˆãƒ•å›³æ³•ã¯æ¯”ç‡0.79ã€ã‚¨ã‚¤ãƒˆãƒ•å¤‰æ›å¹³å°„ã¯æ¯”ç‡0.82
 
 #set parametric
 #set contour surface
@@ -605,7 +638,7 @@ set terminal wxt 13
 #ene=0
 #splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C))*cos(imag(C)),areascale(C)) with pm3d
 #print 'area(1/4) =', ene/180/90*pi*pi/2
-min(a,b)=(b<a?b:a)  #b‚ªNaN‚È‚çXV‚µ‚È‚¢
+min(a,b)=(b<a?b:a)  #bãŒNaNãªã‚‰æ›´æ–°ã—ãªã„
 ene=1e300
 splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=min(ene,(aplusb(C)-aminusb(C))/2),(aplusb(C)-aminusb(C))/2) with pm3d
 print 'min minor-axis =', ene
@@ -619,32 +652,32 @@ do for [i=10:20] {
     call 'world.plt' defstrainfunc ae
   }
 }
-#‚¹‚ñ’f‚Ğ‚¸‚İƒGƒlƒ‹ƒM[Å¬‚Í(B1‚ğŒˆ‚ß‚ÄB2‚ğU‚Á‚½Å¬)B1=1.6,B2=2.4¨B1=1.7,B2=2.7¨B1=1.9,B2=3.4¨B1=2.0,B2=3.8
-#”ä—¦0.8‚É‚µ‚Ä‚¹‚ñ’f‚Ğ‚¸‚İƒGƒlƒ‹ƒM[Å¬‚ÍB1=1.6,B2=1.8¨B1=1.8,B2=2.3¨B1=2.0,B2=2.8
+#ã›ã‚“æ–­ã²ãšã¿ã‚¨ãƒãƒ«ã‚®ãƒ¼æœ€å°ã¯(B1ã‚’æ±ºã‚ã¦B2ã‚’æŒ¯ã£ãŸæœ€å°)B1=1.6,B2=2.4â†’B1=1.7,B2=2.7â†’B1=1.9,B2=3.4â†’B1=2.0,B2=3.8
+#æ¯”ç‡0.8ã«ã—ã¦ã›ã‚“æ–­ã²ãšã¿ã‚¨ãƒãƒ«ã‚®ãƒ¼æœ€å°ã¯B1=1.6,B2=1.8â†’B1=1.8,B2=2.3â†’B1=2.0,B2=2.8
 
-#B1=2.0,B2=2.0‚©‚çŠOŒ`‚ğ‚Ù‚ÚˆÛ‚µ‚Ä‹ÉŒÀ‚ğæ‚é B1=2.0*n,B2=2.0*n**2,n¨‡
+#B1=2.0,B2=2.0ã‹ã‚‰å¤–å½¢ã‚’ã»ã¼ç¶­æŒã—ã¦æ¥µé™ã‚’å–ã‚‹ B1=2.0*n,B2=2.0*n**2,nâ†’âˆ
 #ap(C)=(lam=real(C),phi=imag(C),lam*cos(phi)*(phi==0?1:phi/sin(phi))+I*(acos(cos(phi)*cos(lam/32))/sin(acos(cos(phi)*cos(lam/32)))*sin(phi))*512-EAzEd(I*phi)*511)
 #ap(C)=(lam=real(C),phi=imag(C),lam*cos(phi)*(phi==0?1:phi/sin(phi))+I*(acos(cos(phi)*(1-(lam/32)**2/2))/sin(acos(cos(phi)*(1-(lam/32)**2/2)))*sin(phi))*512-I*phi*511)
 #ap(C)=(lam=real(C),phi=imag(C),lam*cos(phi)*(phi==0?1:phi/sin(phi))+I*((acos(cos(phi))/sin(acos(cos(phi)))+(0+(lam/32)**2/6)*cos(phi)/(sin(phi)/phi)/cos(phi/2)**2)*sin(phi))*512-I*phi*511)
 #ap(C)=(lam=real(C),phi=imag(C),lam*cos(phi)*(phi==0?1:phi/sin(phi))+I*((acos(cos(phi))/sin(acos(cos(phi)))+(0+(lam/32)**2/2)*cos(phi)/(sin(phi))*(sin(phi)-phi*cos(phi))/sin(phi)**2)*sin(phi))*512-I*phi*511)
 #ap(C)=(lam=real(C),phi=imag(C),lam*cos(phi)*(phi==0?1:phi/sin(phi))+I*(phi==0?0:phi+lam**2/tan(phi)*(1-phi/tan(phi))/4))
-#2Ÿ‚Ì”÷¬—Ê‚ğæ‚èo‚·‚Æ‚â‚Í‚è®‚ª”ÏG‚É
-#‚¢‚Á‚»•ú•¨Œ^‚ğ’Ê‚è‰z‚µ‚Ä‘o‹ÈŒ^‚É‚¢‚Á‚½‚ç‚Ç‚¤‚¾‚ë‚¤
-#Œo“x‚ğ‹•”‚É‚µ‚Ä¨AitoffEmp2
-#AitoffEmp2(C,1,0,-1)¨³Ï‚Å‚Í‚È‚¢AˆÜü‚ª’¼üA‚¹‚ñ’f‚Ğ‚¸‚İ‚ÍMollweide‚æ‚è¬‚³‚¢
-#AitoffEmp2(C,1,0.5,-1)¨”¼‹…‚ª‰~‚É‹ß‚¢
-#AitoffEmp2(C,2,2,-1)¨
-#ap(C)¨XÀ•W‚ÍŒo“x‚É”ä—á
-#AitoffEmp2(C,2,2,1)¨XÀ•W‚ÍAitoff
-#–k‹É‚ÌƒGƒbƒW‚ÌÚü
+#2æ¬¡ã®å¾®å°é‡ã‚’å–ã‚Šå‡ºã™ã¨ã‚„ã¯ã‚Šå¼ãŒç…©é›‘ã«
+#ã„ã£ãæ”¾ç‰©å‹ã‚’é€šã‚Šè¶Šã—ã¦åŒæ›²å‹ã«ã„ã£ãŸã‚‰ã©ã†ã ã‚ã†
+#çµŒåº¦ã‚’è™šæ•°ã«ã—ã¦â†’AitoffEmp2
+#AitoffEmp2(C,1,0,-1)â†’æ­£ç©ã§ã¯ãªã„ã€ç·¯ç·šãŒç›´ç·šã€ã›ã‚“æ–­ã²ãšã¿ã¯Mollweideã‚ˆã‚Šå°ã•ã„
+#AitoffEmp2(C,1,0.5,-1)â†’åŠçƒãŒå††ã«è¿‘ã„
+#AitoffEmp2(C,2,2,-1)â†’
+#ap(C)â†’Xåº§æ¨™ã¯çµŒåº¦ã«æ¯”ä¾‹
+#AitoffEmp2(C,2,2,1)â†’Xåº§æ¨™ã¯Aitoff
+#åŒ—æ¥µã®ã‚¨ãƒƒã‚¸ã®æ¥ç·š
 #f(x,B1,B2)=pi/2+((1-cos(pi/B1))*B2-1)/(pi/2*sin(pi/B1)*B1)*x
 #plot [-1:1][-2:2]1/(1-cos(pi/(x**-0.5))),0.5/x
 #halfpoleB2(B1)=1/(1-cos(pi/B1))
 #plot [0:pi]abs(vpar(x+I*20*RPD)),abs(vpar(x+I*40*RPD)),abs(vpar(x+I*60*RPD)),abs(vpar(x+I*80*RPD))
-#ƒGƒCƒgƒt•ÏŠ·•½Ë‚É‰—p¨ATSEmp2
-#–k‹É‚ÌƒGƒbƒW‚ÌÚü
+#ã‚¨ã‚¤ãƒˆãƒ•å¤‰æ›å¹³å°„ã«å¿œç”¨â†’ATSEmp2
+#åŒ—æ¥µã®ã‚¨ãƒƒã‚¸ã®æ¥ç·š
 #f(x,B1,B2)=2+((1-cos(pi/B1))*B2-1)/(sin(pi/B1)*B1)*x
-#halfpoleB2(B1)=“¯ã
+#halfpoleB2(B1)=åŒä¸Š
 #zerojacobianB2(B1)=1/(1/-cos(pi/B1)+1)
 }
 if (ARG1 eq 'makegraticule') {
