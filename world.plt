@@ -485,7 +485,7 @@ EaParabolicFolding(z,a)=(rho=-imag(z),xt=Inv1ax2(real(z)/rho,a),(rho*xt)+I*(-rho
 #infinitesimal strip:
 # dc/dlat = 1
 # da/dlat = (1/(pi/2-lat)^2 + 1/(lat+pi/2)^2)/2
-EaPolyparabolic(C,a)=(lam=real(C),phi=imag(C),atang=a*((pi/2-phi)**-2+(phi+pi/2)**-2)/2,xt=Inv1ax2(lam*cos(phi),atang),xt+I*((1+xt**2*a*(1/(pi/2-phi)-1/(phi+pi/2))/2)*phi))
+EaPolyparabolic(C,a)=(lam=real(C),phi=imag(C),atang=a*((pi/2-phi)**-2+(phi+pi/2)**-2)/2,xt=Inv1ax2(lam*cos(phi),atang),xt+I*(phi+xt**2*a*(1/(pi/2-phi)-1/(phi+pi/2))/2))
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CombinedParabolas141(C),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=CombinedParabolas141(C),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=AllParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=AllParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l
