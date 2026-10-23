@@ -470,8 +470,10 @@ Rcbrt(x)=abs(x)**(1./3)*sgn(x)
 # long*3/a = x*3/a + (x^3)
 # (x^3) + x*3/a - long*3/a = 0
 #p=3/a, q=-long*3/a
-Inv1ax2(t,a)=(a==0?t:Rcbrt(t*1.5/a+sqrt((-t*1.5/a)**2+(1./a)**3))+Rcbrt(t*1.5/a-sqrt((-t*1.5/a)**2+(1./a)**3)))
+Inv1ax2(t,a)=(a==0?t:(-t*1.5/a)**2+a**-3<0?-2*sqrt(-1./a)*cos(acos(-t*1.5/a/(-1./a)**1.5)/3.-2*pi/3):Rcbrt(t*1.5/a+sqrt((-t*1.5/a)**2+(1./a)**3))+Rcbrt(t*1.5/a-sqrt((-t*1.5/a)**2+(1./a)**3)))
 EaParabolic(C,a)=(xt=Inv1ax2(real(C),a),xt+I*((1+xt**2*a)*sin(imag(C))))
+EaParabolicYanking(z,a)=(xt=Inv1ax2(real(z),a),xt+I*((1+xt**2*a)*imag(z)))
+InvEaParabolicYanking(xy,a)=(lam=real(xy)+a*real(xy)**3/3,lam+I*imag(xy)/(1+a*real(xy)**2))
 NEaConcentricParabolas(C,a)=(lam=real(C),phi=imag(C),xt=Inv1ax2(lam,a),rho=2*sin(pi/4-phi/2),(rho*xt)+I*(-rho*(1-xt**2*a)))
 CombinedParabolas141(C)=(imag(C)>asin(2./3)?EachScale(NEaConcentricParabolas(C,(pi*3/4)**-2),1.5**0.5,1.5**-0.5)+I*4./3:imag(C)>-asin(2./3)?EaParabolic(C,(pi*3/4)**-2):EachScale(-NEaConcentricParabolas(-C,(pi*3/4)**-2),1.5**0.5,1.5**-0.5)-I*4./3)
 AllParabolic(C,a)=(C1=NEaConcentricParabolas(C,a),C1+I*(2**0.5-2**-0.5*real(C1)**2*a))
@@ -486,6 +488,20 @@ EaParabolicFolding(z,a)=(rho=-imag(z),xt=Inv1ax2(real(z)/rho,a),(rho*xt)+I*(-rho
 # dc/dlat = 1
 # da/dlat = (1/(pi/2-lat)^2 + 1/(lat+pi/2)^2)/2
 EaPolyparabolic(C,a)=(lam=real(C),phi=imag(C),atang=a*((pi/2-phi)**-2+(phi+pi/2)**-2)/2,xt=Inv1ax2(lam*cos(phi),atang),xt+I*(phi+xt**2*a*(1/(pi/2-phi)-1/(phi+pi/2))/2))
+EaPolyparabolicHamus(C,a)=(lam=real(C),phi=imag(C),atang=a*((pi/2-phi)**-2+(phi+pi/2)**-2-8/pi**2)/2,xt=Inv1ax2(lam*cos(phi),atang),xt+I*(phi+xt**2*a*(1/(pi/2-phi)-1/(phi+pi/2)-8/pi**2*phi)/2))
+#inverse:
+#x,y => lat(x,y) => lon(lat,x)
+# y = lat + x^2/2 * (1/(pi/2-lat) - 1/(lat+pi/2))
+# y * (pi/2-lat) * (lat+pi/2) = lat * (pi/2-lat) * (lat+pi/2) + x^2/2 * ((lat+pi/2) - (pi/2-lat))
+# y * (pi^2/4-lat^2) = lat * (pi^2/4-lat^2) + x^2/2 * (2*lat)
+# lat^3 - y*lat^2 - (pi^2/4 + x^2)*lat + y*pi^2/4 = 0
+# depressing
+# lat = t + y/3
+# (t^3 + y*t^2 + y^2/3 * t + y^3/27) - y*(t^2 + 2*y/3 * t + y^2/9) - (pi^2/4 + x^2) * (t + y/3) + y*pi^2/4 = 0
+# t^3 - (y^2/3 + pi^2/4 + x^2) * t + (-y^2/9 + pi^2/4 - x^2/2) * 2*y/3 = 0
+# p=-(y^2/3 + pi^2/4 + x^2), q=(-y^2/9 + pi^2/4 - x^2/2)*2*y/3
+xy2phi_Pp(x2,y)=(p3=-(y*y/3+pi**2/4+x2)/3,q2=(-y*y/9+pi**2/4-x2/2)*y/3,q2**2+p3**3<0?-2*sqrt(-p3)*cos(acos(q2/(-p3)**1.5)/3.-2*pi/3)+y/3:Rcbrt(-q2+sqrt(q2**2+p3**3))+Rcbrt(-q2-sqrt(q2**2+p3**3))+y/3)
+InvEaPolyparabolicMesh(xy,a)=(phi=xy2phi_Pp(a*real(xy)**2,imag(xy)),lam=real(xy)+a*((pi/2-phi)**-2 + (phi+pi/2)**-2)/2*real(xy)**3/3,abs(phi)>imag(xy)*phi<0?NaN:real(xy)*lam<0?NaN:lam+I*phi)
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=CombinedParabolas141(C),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=CombinedParabolas141(C),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=AllParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=AllParabolic(C,(pi*3/4)**-2),real(xy)):(imag(xy)) w l
@@ -495,6 +511,10 @@ EaPolyparabolic(C,a)=(lam=real(C),phi=imag(C),atang=a*((pi/2-phi)**-2+(phi+pi/2)
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=(C1=EaParabolicFolding(Sinusoidal(C)-I*pi/2,(pi*3/4)**-2),C1+I*(pi/2-real(C1)**2*(2/pi)*(pi*3/4)**-2)),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=(C1=EaParabolicFolding(Sinusoidal(C)-I*pi/2,(pi*3/4)**-2),C1+I*(pi/2-real(C1)**2*(2/pi)*(pi*3/4)**-2)),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaPolyparabolic(C,(pi*3/4)**-2*2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaPolyparabolic(C,(pi*3/4)**-2*2),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaPolyparabolic(C,1),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaPolyparabolic(C,1),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaPolyparabolicHamus(C,(pi*3/4)**-2*2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaPolyparabolicHamus(C,(pi*3/4)**-2*2),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaParabolicYanking(Mollweide(C),4**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaParabolicYanking(Mollweide(C),4**-2),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=InvEaParabolicYanking(Mollweide(C),-4**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=InvEaParabolicYanking(Mollweide(C),-4**-2),real(xy)):(imag(xy)) w l
+#plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=InvEaPolyparabolicMesh(Sinusoidal(C),-0.06),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=InvEaPolyparabolicMesh(Sinusoidal(C),-0.06),real(xy)):(imag(xy)) w l
 
 
 #Baseball projection, alpha version
