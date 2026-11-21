@@ -748,12 +748,77 @@ do for [i=0:6] {
 }  # do for k
 unset print
 
-set print 'upright-1.dat'
-do for [i=0:179] {
+set print 'upright-2.dat'
+do for [i=0:44] {
   do for [j=0:89] {
-    print i+0.5,j+0.5
+    print j*2+1,i*2+1
   }
   print ''
+}
+unset print
+
+set print 'upright-1.dat'
+do for [i=0:89] {
+  do for [j=0:179] {
+    print j+0.5,i+0.5
+  }
+  print ''
+}
+unset print
+
+set print 'upright-0.5.dat'
+do for [i=0:179] {
+  do for [j=0:359] {
+    print j/2.0+0.25,i/2.0+0.25
+  }
+  print ''
+}
+unset print
+
+set print 'upright-0.2.dat'
+do for [i=0:449] {
+  do for [j=0:899] {
+    print j/5.0+0.1,i/5.0+0.1
+  }
+  print ''
+}
+unset print
+
+array meshband[6]
+meshband[6] = 0
+meshband[5] = 50
+meshband[4] = 66
+meshband[3] = 78
+meshband[2] = 86
+meshband[1] = 90
+
+set print 'upright-1-adaptive.dat'
+do for [iw=5:1:-1] {
+  lathalf = iw/5.0/2
+  lonhalf = 5.0/iw/2
+  istart = meshband[iw+1]*5
+  iend = meshband[iw]*5-1
+  do for [i=istart:iend:iw] {
+    do for [j=0:180/5*iw-1] {
+      print j*5.0/iw+lonhalf,i/5.0+lathalf
+    }
+    print ''
+  }
+}
+unset print
+
+set print 'upright-0.5-adaptive.dat'
+do for [iw=5:1:-1] {
+  lathalf = iw/10.0/2
+  lonhalf = 2.5/iw/2
+  istart = meshband[iw+1]*10
+  iend = meshband[iw]*10-1
+  do for [i=istart:iend:iw] {
+    do for [j=0:180/2.5*iw-1] {
+      print j*2.5/iw+lonhalf,i/10.0+lathalf
+    }
+    print ''
+  }
 }
 unset print
 
