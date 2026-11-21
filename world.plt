@@ -515,6 +515,14 @@ InvEaPolyparabolicMesh(xy,a)=(phi=xy2phi_Pp(a*real(xy)**2,imag(xy)),lam=real(xy)
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaParabolicYanking(Mollweide(C),4**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaParabolicYanking(Mollweide(C),4**-2),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=InvEaParabolicYanking(Mollweide(C),-4**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=InvEaParabolicYanking(Mollweide(C),-4**-2),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=InvEaPolyparabolicMesh(Sinusoidal(C),-0.06),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=InvEaPolyparabolicMesh(Sinusoidal(C),-0.06),real(xy)):(imag(xy)) w l
+#          meanmaxangdef   unbshearene
+#Mollweide 32.3deg         0.744
+#Hammer    35.7deg         0.790
+#LambertCy 30.9deg         may not converge
+#ComplEG   32.4deg         0.660
+#SM1       32.6deg         0.630
+#SM1varCEG 32.2deg         0.647
+#SM2       33.2deg         0.663
 
 
 #Baseball projection, alpha version
@@ -601,7 +609,9 @@ pause -1
 #plot [-3:3][-2:2]'full-15.dat' using (C=($1+I*$2)*RPD,xy=Sinusoidal(C)+sgn($1)*(((pi/2)**2-imag(C)**2)**0.5-pi/2*cos(imag(C))),real(xy)):(imag(xy)) w l, 'full-15.dat' using (C=($1+I*$2)*RPD,xy=TSinusoidal(C),xy=xy+I*sgn($2)*(((pi/2)**2-real(xy)**2)**0.5-pi/2*cos(real(xy))),real(xy)):(imag(xy)) w l,((pi/2)**2-x**2)**0.5
 #open-mouse sinusoidal II
 #plot [-3:3][-2:2]'full-15.dat' using (C=($1+I*$2)*RPD,xy=Sinusoidal(C),xy=xy+I*sgn($2)*(((pi/2)**2-real(xy)**2)**0.5-acos(abs(real(xy))/pi*2)),(cos(real(C))<0?xy=NaN:0),real(xy)):(imag(xy)) w l, 'full-15.dat' using (C=($1+I*$2)*RPD,xy=TSinusoidal(C),xy=xy+sgn($1)*(((pi/2)**2-imag(xy)**2)**0.5-acos(abs(imag(xy))/pi*2)),(cos(real(C))<0?xy=NaN:0),real(xy)):(imag(xy)) w l,((pi/2)**2-x**2)**0.5
+
 } else {
+
 if (ARG1 eq 'defstrainfunc') {
 str='vmer(C)=('.ARG2.'(C+{0,-1e-6})-'.ARG2.'(C+{0,1e-6}))/2e-6'
 eval str
@@ -611,14 +621,28 @@ merscale(C)=abs(vmer(C))
 parscale(C)=abs(vpar(C))/cos(imag(C))
 areascale(C)=abs(vpar(C))/cos(imag(C))*abs(vmer(C))*sin(arg(vpar(C)/vmer(C)))
 a2b2(C)=merscale(C)**2+parscale(C)**2
-angledeform(C)=2*asin(((a2b2-2*areascale)/(a2b2+2*areascale))**0.5)
-#cf. https://en.wikipedia.org/wiki/Tissot's_indicatrix
-#merscale=h,parscale=k,areascale=s=a*b=h*k*sin(thprime),a2b2=a**2+b**2=h**2+k**2
 aplusb(C)=(a2b2(C)+2*areascale(C))**0.5
 aminusb(C)=(a2b2(C)-2*areascale(C))**0.5
+angledeform(C)=2*asin(aminusb(C)/aplusb(C))  #***
+#angledeform(C)=2*atan((a2b2(C)/areascale(C)-2)**0.5/2)  #Capek(2001)
+#cf. https://en.wikipedia.org/wiki/Tissot's_indicatrix
+#merscale=h,parscale=k,areascale=s=a*b=h*k*sin(thprime),a2b2=a**2+b**2=h**2+k**2
+#
+ascale(C)=(aplusb(C)+aminusb(C))/2
+bscale(C)=(aplusb(C)-aminusb(C))/2
+#scaleerror(C)=ascale(C)-1 or bscale(C)-1 ?
+#
+#absareaerror(C)=abs(areascale(C)-1)  #0% and 200% are same, boo
+#boundedabsareaerror(C)=max(1-areascale(C),1-areascale(C)**-1)
+#unboundedabsareaerror(C)=max(areascale(C)-1,areascale(C)**-1-1)  #神谷(2012)
+#
 #a/b+b/a=a2b2/areascale
-#a/b+b/a-2=(a2b2-2*areascale)/areascale=((a-b)/areascale**0.5)**2 せん断ひずみエネルギーとして採用
+#a/b+b/a-2=a2b2/areascale-2=(a2b2-2*areascale)/areascale=((a-b)/areascale**0.5)**2 せん断ひずみエネルギーとして採用
+#            ↑Capekのatanの中の式と共通、逆に言えばangledeformはこれをatanでboundしたもの
 #areascale(C)+1/areascale(C)-2 第1項はピストン外の大気圧、第2項はピストン内の等圧変化 面積ひずみエネルギーとして採用
+unboundedshearenergy(C)=a2b2(C)/areascale(C)-2
+unboundedareaenergy(C)=areascale(C)+1/areascale(C)-2
+#
 #神谷(2012)「ただし、各図法は、Esnを最小とするように、拡大または縮小を行っている。」
 #全体の面積を正積図法と合わせるようにすると面積ひずみエネルギーが最小に近くなる
 #NStereo(C)/2**0.5*1.04,NAzEd(C)/pi*2**1.5*1.004
@@ -630,7 +654,9 @@ aminusb(C)=(a2b2(C)-2*areascale(C))**0.5
 #モルワイデ図法の方を調整すると0.77の比率で2.607（1°メッシュで特異点付近の近似が十分か？）
 #モルワイデ図法のせん断ひずみが発散するところが嫌われているのはわかるが、積分すると収束する程度の特異点である
 #エイトフ図法は比率0.79、エイトフ変換平射は比率0.82
+}
 
+if (ARG1 eq 'evaluate') {
 #set parametric
 #set contour surface
 #set isosamples 180,90
@@ -646,23 +672,51 @@ set terminal wxt 11
 ene=0
 splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C)+1/areascale(C)-2)*cos(imag(C)),areascale(C)) with pm3d
 print 'areaenergy(1/4) =', ene/180/90*pi/2
-#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C)+1/areascale(C)-2),areascale(C)) with pm3d
-#print 'areaenergy(pole-heavy)(1/4) =', ene/180/90
 set terminal wxt 12
 ene=0
 splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(a2b2(C)/areascale(C)-2)*cos(imag(C)),a2b2(C)/areascale(C)-2) with pm3d
 print 'shearenergy(1/4)=', ene/180/90*pi/2
-#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(a2b2(C)/areascale(C)-2),a2b2(C)/areascale(C)-2) with pm3d
-#print 'shearenergy(pole-heavy)(1/4)=', ene/180/90
 set terminal wxt 13
-#ene=0
-#splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C))*cos(imag(C)),areascale(C)) with pm3d
-#print 'area(1/4) =', ene/180/90*pi*pi/2
+ene=0
+splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(angledeform(C))*cos(imag(C)),angledeform(C)) with pm3d
+print 'mean of max angular deform =', ene/180/90*pi/2, ' (', ene/180/90*pi/2*DPR, ' deg)'
+set terminal wxt 14
 min(a,b)=(b<a?b:a)  #bがNaNなら更新しない
 ene=1e300
-splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=min(ene,(aplusb(C)-aminusb(C))/2),(aplusb(C)-aminusb(C))/2) with pm3d
+splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=min(ene,bscale(C)),bscale(C)) with pm3d
 print 'min minor-axis =', ene
 }
+
+if (ARG1 eq 'gridsizeconvergence') {
+set terminal wxt 21
+print ARG2
+ene=0
+splot 'upright-2.dat' using (C=($1+I*$2)*RPD,xy=(C),real(xy)):(imag(xy)):(ene=ene+(@ARG2(C))*cos(imag(C)),@ARG2(C)) with pm3d
+ene1=ene
+print 'on 2deg grid=', ene1/90/45*pi/2
+ene=0
+splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=(C),real(xy)):(imag(xy)):(ene=ene+(@ARG2(C))*cos(imag(C)),@ARG2(C)) with pm3d
+ene2=ene
+print 'on 1deg grid=', ene2/180/90*pi/2
+ene=0
+splot 'upright-1-adaptive.dat' using (C=($1+I*$2)*RPD,xy=(C),real(xy)):(imag(xy)):(ene=ene+(@ARG2(C))*cos(imag(C)),@ARG2(C)) with pm3d
+ene3=ene
+print 'on 1deg adaptive grid=', ene3/180/90*pi/2
+ene=0
+splot 'upright-0.5.dat' using (C=($1+I*$2)*RPD,xy=(C),real(xy)):(imag(xy)):(ene=ene+(@ARG2(C))*cos(imag(C)),@ARG2(C)) with pm3d
+ene4=ene
+print 'on 0.5deg grid=', ene4/360/180*pi/2
+ene=0
+splot 'upright-0.5-adaptive.dat' using (C=($1+I*$2)*RPD,xy=(C),real(xy)):(imag(xy)):(ene=ene+(@ARG2(C))*cos(imag(C)),@ARG2(C)) with pm3d
+ene5=ene
+print 'on 0.5deg adaptive grid=', ene5/360/180*pi/2
+ene=0
+splot 'upright-0.2.dat' using (C=($1+I*$2)*RPD,xy=(C),real(xy)):(imag(xy)):(ene=ene+(@ARG2(C))*cos(imag(C)),@ARG2(C)) with pm3d
+ene6=ene
+print 'on 0.2deg grid=', ene6/900/450*pi/2
+
+}
+
 if (ARG1 eq 'survey') {
 print 'AitoffEmphasized'
 do for [i=10:20] {
@@ -700,6 +754,7 @@ do for [i=10:20] {
 #halfpoleB2(B1)=同上
 #zerojacobianB2(B1)=1/(1/-cos(pi/B1)+1)
 }
+
 if (ARG1 eq 'makegraticule') {
 pause -1
 
