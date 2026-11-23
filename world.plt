@@ -515,14 +515,14 @@ InvEaPolyparabolicMesh(xy,a)=(phi=xy2phi_Pp(a*real(xy)**2,imag(xy)),lam=real(xy)
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=EaParabolicYanking(Mollweide(C),4**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=EaParabolicYanking(Mollweide(C),4**-2),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=InvEaParabolicYanking(Mollweide(C),-4**-2),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=InvEaParabolicYanking(Mollweide(C),-4**-2),real(xy)):(imag(xy)) w l
 #plot 'full-15.dat' using (C=($1+I*$2)*RPD,xy=InvEaPolyparabolicMesh(Sinusoidal(C),-0.06),real(xy)):(imag(xy)) w l, WORLDMAP using (C=($1+I*$2)*RPD,xy=InvEaPolyparabolicMesh(Sinusoidal(C),-0.06),real(xy)):(imag(xy)) w l
-#          meanmaxangdef   unbshearene
-#Mollweide 32.3deg         0.744
-#Hammer    35.7deg         0.790
-#LambertCy 30.9deg         may not converge
-#ComplEG   32.4deg         0.660
-#SM1       32.6deg         0.630
-#SM1varCEG 32.2deg         0.647
-#SM2       33.2deg         0.663
+#          meanmaxangdef   unbshearenergy   meanabslogshear  meansqlogshear
+#Mollweide 32.3deg         0.744            0.593            0.595
+#Hammer    35.7deg         0.790            0.654            0.678
+#LambertCy 30.9deg         may not converge 0.614            1.09
+#ComplEG   32.4deg         0.660            0.591            0.542
+#SM1       32.6deg         0.630            0.592            0.520
+#SM1varCEG 32.2deg         0.647            0.586            0.529
+#SM2       33.2deg         0.663            0.604            0.549
 
 
 #Baseball projection, alpha version
@@ -636,6 +636,14 @@ bscale(C)=(aplusb(C)-aminusb(C))/2
 #boundedabsareaerror(C)=max(1-areascale(C),1-areascale(C)**-1)
 #unboundedabsareaerror(C)=max(areascale(C)-1,areascale(C)**-1-1)  #神谷(2012)
 #
+#logarithmic strain
+logareastrain(C)=log(areascale(C))
+abslogareastrain(C)=abs(logareastrain(C))
+sqlogareastrain(C)=logareastrain(C)**2
+logshearstrain(C)=log(ascale(C)/bscale(C))
+abslogshearstrain(C)=abs(logshearstrain(C))
+sqlogshearstrain(C)=logshearstrain(C)**2
+#
 #a/b+b/a=a2b2/areascale
 #a/b+b/a-2=a2b2/areascale-2=(a2b2-2*areascale)/areascale=((a-b)/areascale**0.5)**2 せん断ひずみエネルギーとして採用
 #            ↑Capekのatanの中の式と共通、逆に言えばangledeformはこれをatanでboundしたもの
@@ -710,6 +718,7 @@ ene=0
 splot 'upright-0.5-adaptive.dat' using (C=($1+I*$2)*RPD,xy=(C),real(xy)):(imag(xy)):(ene=ene+(@ARG2(C))*cos(imag(C)),@ARG2(C)) with pm3d
 ene5=ene
 print 'on 0.5deg adaptive grid=', ene5/360/180*pi/2
+pause -1 "Proceed to 0.2deg grid"
 ene=0
 splot 'upright-0.2.dat' using (C=($1+I*$2)*RPD,xy=(C),real(xy)):(imag(xy)):(ene=ene+(@ARG2(C))*cos(imag(C)),@ARG2(C)) with pm3d
 ene6=ene
