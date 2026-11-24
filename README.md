@@ -16,7 +16,7 @@
      ```
    - Or run in batch mode:
      ```sh
-     gnuplot world.plt makegraticule
+     gnuplot -c world.plt makegraticule
      ```
 
 ## Usage
@@ -37,15 +37,15 @@
 3. Evaluate distortion:
    ```gnuplot
    call 'world.plt' defstrainfunc <projection_function>
-   call 'world.plt' evaluate <projection_function>
+   call 'world.plt' evaluate <projection_function> [<metric_function>]
    ```
 4. Note that `makegraticule` only creates a mesh covering the northern‑eastern quarter of the Earth. For asymmetric projections you may need to rotate the projection to evaluate the southern hemisphere and average the results.
 5. To test convergence with respect to grid resolution:
    ```gnuplot
+   call 'world.plt' defstrainfunc <projection_function>
    call 'world.plt' gridsizeconvergence <metric_function>
    ```
    This will output results for grid spacings from 2° down to 0.2°. Some projections may take several minutes.
 
 ## Platform notes
 - The instructions work on both Linux and Windows. On Windows ensure that the Gnuplot executable is in your `PATH` or use the full path to `gnuplot.exe`.
-

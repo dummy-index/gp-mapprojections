@@ -63,7 +63,7 @@ Equirectangular(C,phi1)=EachScale(C,1.0,1.0/cos(phi1))
 #Mercator(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(log(tan(imag(C)/2+pi/4)))
 #tan(pi/4) don't meet 1
 #Mercator(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(asinh(tan(imag(C))))
-#asinh(x) is bad at x<0
+#asinh(x) is bad at x<0  #fixed on gnuplot >= 5.4.1
 Mercator(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(sgn(imag(C))*asinh(tan(abs(imag(C)))))
 #Mercator(C)=2*atan(EStereo(C)/2)
 CentralCy(C)=abs(imag(C)*DPR)>=86+4?NaN:real(C)+I*(tan(imag(C)))
@@ -676,14 +676,20 @@ if (ARG1 eq 'evaluate') {
 unset parametric
 unset contour
 unset dgrid3d
+if (ARGC>=3) {
+set terminal wxt 11
+ene=0
+splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(@ARG3(C))*cos(imag(C)),@ARG3(C)) with pm3d
+print 'mean of', ARG3, '=', ene/180/90*pi/2
+} else {
 set terminal wxt 11
 ene=0
 splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(areascale(C)+1/areascale(C)-2)*cos(imag(C)),areascale(C)) with pm3d
-print 'areaenergy(1/4) =', ene/180/90*pi/2
+print 'areaenergy =', ene/180/90*pi/2
 set terminal wxt 12
 ene=0
 splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(a2b2(C)/areascale(C)-2)*cos(imag(C)),a2b2(C)/areascale(C)-2) with pm3d
-print 'shearenergy(1/4)=', ene/180/90*pi/2
+print 'shearenergy=', ene/180/90*pi/2
 set terminal wxt 13
 ene=0
 splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=ene+(angledeform(C))*cos(imag(C)),angledeform(C)) with pm3d
@@ -693,6 +699,7 @@ min(a,b)=(b<a?b:a)  #bがNaNなら更新しない
 ene=1e300
 splot 'upright-1.dat' using (C=($1+I*$2)*RPD,xy=@ARG2(C),real(xy)):(imag(xy)):(ene=min(ene,bscale(C)),bscale(C)) with pm3d
 print 'min minor-axis =', ene
+}
 }
 
 if (ARG1 eq 'gridsizeconvergence') {
